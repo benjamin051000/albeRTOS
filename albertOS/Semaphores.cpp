@@ -17,7 +17,7 @@
  * Param "value": Value to initialize semaphore to
  * THIS IS A CRITICAL SECTION
  */
-void G8RTOS_InitSemaphore(Semaphore* s, int32_t value)
+void initSemaphore(Semaphore* s, int32_t value)
 {
 	int32_t status = StartCriticalSection();
 
@@ -41,7 +41,7 @@ void G8RTOS_WaitSemaphore(Semaphore* s)
 
     if((*s) < 0)
     {
-        CurrentlyRunningThread->blocked = s; //block thread
+        currentThread->blocked = s; //block thread
         SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; //yield to allow other threads to run
     }
 
@@ -63,10 +63,10 @@ void G8RTOS_SignalSemaphore(Semaphore* s)
 
     if((*s) <= 0)
     {
-        tcb_t* ptr = CurrentlyRunningThread->nextTCB;
+        TCB* ptr = currentThread->next;
         while(ptr->blocked != s) //unblock first thread associated with this semaphore
         {
-            ptr = ptr->nextTCB;
+            ptr = ptr->next;
         }
 
         *(ptr->blocked) = 0; //make it unblocked

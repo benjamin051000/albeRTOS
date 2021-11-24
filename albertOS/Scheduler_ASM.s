@@ -6,7 +6,7 @@
 	.def G8RTOS_Start, PendSV_Handler
 
 	; Dependencies
-	.ref CurrentlyRunningThread, G8RTOS_Scheduler
+	.ref currentThread, G8RTOS_Scheduler
 
 	.thumb		; Set to thumb mode
 	.align 2	; Align by 2 bytes (thumb mode uses allignment by 2 or 4)
@@ -14,7 +14,7 @@
 
 ; Need to have the address defined in file 
 ; (label needs to be close enough to asm code to be reached with PC relative addressing)
-RunningPtr: .field CurrentlyRunningThread, 32
+RunningPtr: .field currentThread, 32
 
 ; G8RTOS_Start
 ;	Sets the first thread to be the currently running thread

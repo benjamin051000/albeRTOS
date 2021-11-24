@@ -1,16 +1,11 @@
 /*
- * G8RTOS_Structure.h
- *
- *  Created on: Jan 12, 2017
- *      Author: Raz Aloni
+ * Structures.h
  */
-
-#ifndef G8RTOS_STRUCTURES_H_
-#define G8RTOS_STRUCTURES_H_
+#pragma once
 
 #include <albertOS.h>
 
-/*********************************************** Data Structure Definitions ***********************************************************/
+// TODO this file should not be exposed on the public API. It's for internal kernel use only.
 
 /*
  *  Thread Control Block:
@@ -18,11 +13,10 @@
  *      - The Thread Control Block holds information about the Thread Such as the Stack Pointer, Priority Level,
  *      and Blocked Status
  */
-
-struct tcb_t {
-   int32_t* stackPointer;
-   tcb_t* previousTCB;
-   tcb_t* nextTCB;
+struct TCB {
+   int32_t* sp;
+   TCB* prev;
+   TCB* next;
    Semaphore* blocked; //0 if not blocked, otherwise holds semaphore of resource its waiting for
    uint32_t sleepCount; //how long left to sleep
    int asleep; //true or false
@@ -39,24 +33,14 @@ struct tcb_t {
  *      - Holds Current time
  *      - Contains pointer to the next periodic event - linked list
  */
-struct ptcb_t {
-   ptcb_t* previousPTCB;
-   ptcb_t* nextPTCB;
+struct PTCB {
+   PTCB* prev;
+   PTCB* next;
    uint32_t currentTime;
    uint32_t executeTime;
    uint32_t period;
-   void (*Handler)(void);
+   TaskFuncPtr handler;
 };
 
-/*********************************************** Data Structure Definitions ***********************************************************/
 
-
-/*********************************************** Public Variables *********************************************************************/
-
-tcb_t * CurrentlyRunningThread;
-
-/*********************************************** Public Variables *********************************************************************/
-
-
-
-#endif /* G8RTOS_STRUCTURES_H_ */
+TCB* currentThread;

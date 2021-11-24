@@ -6,6 +6,7 @@
  */
 #include <albertOS.h>
 
+
 void taskA() {
 while(true) {
     GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN0);
@@ -16,7 +17,6 @@ while(true) {
 void taskB() {
 while(true) {
     GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN1);
-//    albertOS::sleep(2000); // let other tasks run
     albertOS::sleep(1000);
 }
 }
