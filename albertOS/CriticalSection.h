@@ -16,14 +16,14 @@
  * 	- Disables interrupts
  * Returns: The current PRIMASK State
  */
-extern int32_t StartCriticalSection();
+extern "C" int32_t StartCriticalSection();
 
 /*
  * Ends a critical Section
  * 	- Restores the state of the PRIMASK given an input
  * Param "IBit_State": PRIMASK State to update
  */
-extern void EndCriticalSection(int32_t IBit_State);
+extern "C" void EndCriticalSection(int32_t IBit_State);
 
 
 #endif /* G8RTOS_CRITICALSECTION_H_ */

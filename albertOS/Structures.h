@@ -19,10 +19,10 @@
  *      and Blocked Status
  */
 
-typedef struct tcb {
+struct tcb_t {
    int32_t* stackPointer;
-   struct tcb* previousTCB;
-   struct tcb* nextTCB;
+   tcb_t* previousTCB;
+   tcb_t* nextTCB;
    Semaphore* blocked; //0 if not blocked, otherwise holds semaphore of resource its waiting for
    uint32_t sleepCount; //how long left to sleep
    int asleep; //true or false
@@ -30,7 +30,7 @@ typedef struct tcb {
    int isAlive; //true or false
    threadId_t threadID;
    char threadName[MAX_NAME_LENGTH];
-} tcb_t;
+};
 
 /*
  *  Periodic Thread Control Block:
@@ -39,14 +39,14 @@ typedef struct tcb {
  *      - Holds Current time
  *      - Contains pointer to the next periodic event - linked list
  */
-typedef struct ptcb {
-   struct ptcb* previousPTCB;
-   struct ptcb* nextPTCB;
+struct ptcb_t {
+   ptcb_t* previousPTCB;
+   ptcb_t* nextPTCB;
    uint32_t currentTime;
    uint32_t executeTime;
    uint32_t period;
    void (*Handler)(void);
-} ptcb_t;
+};
 
 /*********************************************** Data Structure Definitions ***********************************************************/
 

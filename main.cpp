@@ -5,7 +5,6 @@
  *      Author: benja
  */
 #include <albertOS.h>
-#include <Scheduler.h>
 
 void taskA() {
 while(true) {
@@ -46,9 +45,9 @@ int main() {
     GPIO_setAsOutputPin(GPIO_PORT_P2, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2);
     GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2);
 
-    G8RTOS_AddThread(taskA, 1, "Task A");
-    G8RTOS_AddThread(taskB, 3, "Task B");
-    G8RTOS_AddThread(idleTask, 4, "Idle Thread");
+    G8RTOS_AddThread(taskA, 1, (char*)"Task A");
+    G8RTOS_AddThread(taskB, 3, (char*)"Task B");
+    G8RTOS_AddThread(idleTask, 4, (char*)"Idle Thread");
 
     G8RTOS_AddPeriodicEvent(per_event, 500);
 

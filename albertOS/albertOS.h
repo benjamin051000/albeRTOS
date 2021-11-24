@@ -1,9 +1,8 @@
 /*
- * G8RTOS.h
+ * albertOS.h
+ * Include this file in your project to use albertOS.
  */
-
-#ifndef G8RTOS_H_
-#define G8RTOS_H_
+#pragma once
 
 // STL includes
 #include <stdint.h>
@@ -11,14 +10,11 @@
 // Target-specific includes
 #include <msp.h>
 #include <BSP.h>
-#include <CriticalSection.h>
 #include <driverlib.h>
 
 // Kernel includes
-#include <IPC.h>
-#include <Scheduler.h>
 #include <Semaphores.h>
-#include <Structures.h> // TODO maybe include before scheduler?
-
-
-#endif /* G8RTOS_H_ */
+#include <CriticalSection.h>
+#include <Scheduler.h>
+#include <Structures.h>
+#include <IPC.h>

@@ -1,16 +1,13 @@
 /*
- * G8RTOS_Scheduler.c
+ * Scheduler.cpp
  */
-
-/*********************************************** Dependencies and Externs *************************************************************/
-
 #include <albertOS.h>
-#include <string.h>
+#include <string.h> // for strcpy()
 
 /*
  * G8RTOS_Start exists in asm
  */
-extern void G8RTOS_Start();
+extern "C" void G8RTOS_Start(void);
 
 /* System Core Clock From system_msp432p401r.c */
 extern uint32_t SystemCoreClock;
@@ -90,7 +87,7 @@ static void InitSysTick(uint32_t numCycles)
  *  - Simple Round Robin: Choose the next running thread by selecting the currently running thread's next pointer
  *  - Check for sleeping and blocked threads
  */
-void G8RTOS_Scheduler()
+extern "C" void G8RTOS_Scheduler()
 {
     uint16_t currentMaxPriority = 256;
     tcb_t* tempNextThread = CurrentlyRunningThread->nextTCB;
@@ -115,7 +112,8 @@ void G8RTOS_Scheduler()
  * set the PendSV flag to start the scheduler,
  * and be responsible for handling sleeping and periodic threads
  */
-void SysTick_Handler()
+// TODO: This must be 'extern "C"' for some reason... figure out why.
+extern "C" void SysTick_Handler()
 {
 	systemTime += 1;
 
@@ -157,7 +155,7 @@ uint32_t systemTime;
  * Sets variables to an initial state (system time and number of threads)
  * Enables board for highest speed clock and disables watchdog
  */
-void G8RTOS_Init(void)
+void G8RTOS_Init()
 {
 	systemTime = 0;
 	NumberOfThreads = 0;

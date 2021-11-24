@@ -1,20 +1,19 @@
 /*
  * G8RTOS_Scheduler.h
  */
-
-#ifndef G8RTOS_SCHEDULER_H_
-#define G8RTOS_SCHEDULER_H_
+#pragma once
 
 #include <albertOS.h>
 
-/*********************************************** Sizes and Limits *********************************************************************/
-#define MAX_THREADS 25
-#define MAX_PTHREADS 6
-#define STACKSIZE 512
-#define OSINT_PRIORITY 7
+using threadId_t = uint32_t;
 
-#define MAX_NAME_LENGTH 16
-typedef uint32_t threadId_t;
+const unsigned MAX_THREADS = 25;
+const unsigned MAX_PTHREADS = 6;
+const unsigned STACKSIZE = 512;
+const unsigned OSINT_PRIORITY = 7;
+
+const unsigned MAX_NAME_LENGTH = 16;
+
 
 typedef enum
 {
@@ -43,7 +42,7 @@ extern uint32_t systemTime;
 /*
  * Initializes variables and hardware for G8RTOS usage
  */
-void G8RTOS_Init(void);
+void G8RTOS_Init();
 
 /*
  * Starts G8RTOS Scheduler
@@ -51,7 +50,7 @@ void G8RTOS_Init(void);
  * 	- Sets Context to first thread
  * Returns: Error Code for starting scheduler. This will only return if the scheduler fails
  */
-int32_t G8RTOS_Launch(void);
+int G8RTOS_Launch(void);
 
 /*
  * Adds threads to G8RTOS Scheduler
@@ -94,7 +93,3 @@ sched_ErrCode_t G8RTOS_KillAll(void);
 
 //adds an aperiodic event, like an interrupt
 sched_ErrCode_t G8RTOS_AddAPeriodicEvent(void (*AthreadToAdd)(void), uint8_t priority, IRQn_Type IRQn);
-
-/*********************************************** Public Functions *********************************************************************/
-
-#endif /* G8RTOS_SCHEDULER_H_ */
