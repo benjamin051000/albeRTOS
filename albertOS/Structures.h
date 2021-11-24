@@ -42,5 +42,5 @@ struct PTCB {
    TaskFuncPtr handler;
 };
 
-
+/* Pointer to the current running thread. */
 TCB* currentThread;

@@ -1,15 +1,8 @@
-    /*
- * G8RTOS_Semaphores.c
+/*
+ * Semaphores.cpp
  */
 
-/*********************************************** Dependencies and Externs *************************************************************/
-
 #include <albertOS.h>
-
-/*********************************************** Dependencies and Externs *************************************************************/
-
-
-/*********************************************** Public Functions *********************************************************************/
 
 /*
  * Initializes a semaphore to a given value
@@ -17,7 +10,7 @@
  * Param "value": Value to initialize semaphore to
  * THIS IS A CRITICAL SECTION
  */
-void initSemaphore(Semaphore* s, int32_t value)
+void albertOS::initSemaphore(Semaphore* s, int32_t value)
 {
 	int32_t status = StartCriticalSection();
 
@@ -33,7 +26,7 @@ void initSemaphore(Semaphore* s, int32_t value)
  * Param "s": Pointer to semaphore to wait on
  * THIS IS A CRITICAL SECTION
  */
-void G8RTOS_WaitSemaphore(Semaphore* s)
+void albertOS::waitSemaphore(Semaphore* s)
 {
     int32_t status = StartCriticalSection();
 
@@ -55,7 +48,7 @@ void G8RTOS_WaitSemaphore(Semaphore* s)
  * Param "s": Pointer to semaphore to be signaled
  * THIS IS A CRITICAL SECTION
  */
-void G8RTOS_SignalSemaphore(Semaphore* s)
+void albertOS::signalSemaphore(Semaphore* s)
 {
     int32_t status = StartCriticalSection();
 
@@ -74,7 +67,3 @@ void G8RTOS_SignalSemaphore(Semaphore* s)
 
     EndCriticalSection(status);
 }
-
-/*********************************************** Public Functions *********************************************************************/
-
-

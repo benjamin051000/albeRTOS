@@ -2,7 +2,7 @@
  * main.cpp
  *
  *  Created on: Nov 22, 2021
- *      Author: benja
+ *      Author: Benjamin Wheeler
  */
 #include <albertOS.h>
 

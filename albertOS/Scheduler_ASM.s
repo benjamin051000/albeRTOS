@@ -3,7 +3,7 @@
 ; Note: If you have an h file, do not have a C file and an S file of the same name
 
 	; Functions Defined
-	.def G8RTOS_Start, PendSV_Handler
+	.def start_RTOS, PendSV_Handler
 
 	; Dependencies
 	.ref currentThread, G8RTOS_Scheduler
@@ -19,7 +19,7 @@ RunningPtr: .field currentThread, 32
 ; G8RTOS_Start
 ;	Sets the first thread to be the currently running thread
 ;	Starts the currently running thread by setting Link Register to tcb's Program Counter
-G8RTOS_Start:
+start_RTOS:
 
 	.asmfunc
 
