@@ -4,43 +4,21 @@
  *  Created on: Jan 10, 2017
  *      Author: Daniel Gonzalez
  */
-#pragma once
 
-#include <albertOS.h>
+#ifndef G8RTOS_G8RTOS_IPC_H_
+#define G8RTOS_G8RTOS_IPC_H_
 
-namespace albertOS {
+#include <G8RTOS.h>
+/*********************************************** Error Codes **************************************************************************/
 
-// Private namespace
-namespace {
+/*********************************************** Error Codes **************************************************************************/
 
-const int FIFOSIZE = 16;
-const int MAX_NUMBER_OF_FIFOS = 4;
-
-} // end of private namespace
-
-/*
- * FIFO struct will hold
- *  - buffer
- *  - head
- *  - tail
- *  - lost data
- *  - current size
- *  - mutex
- */
-
-struct FIFO {
-    int32_t buffer[FIFOSIZE]; //where data is held
-    int32_t* head;
-    int32_t* tail;
-    int32_t lostData;
-    Semaphore currentSize;
-    Semaphore mutex;
-};
+/*********************************************** Public Functions *********************************************************************/
 
 /*
  * Initializes One to One FIFO Struct
  */
-int initFIFO(uint32_t FIFOIndex);
+int G8RTOS_InitFIFO(uint32_t FIFOIndex);
 
 /*
  * Reads FIFO
@@ -61,4 +39,7 @@ int32_t readFIFO(uint32_t FIFO);
  */
 int writeFIFO(uint32_t FIFO, int32_t data);
 
-} // end of namespace albertOS
+/*********************************************** Public Functions *********************************************************************/
+
+
+#endif /* G8RTOS_G8RTOS_IPC_H_ */

@@ -4,9 +4,11 @@
  *  Created on: Dec 11, 2016
  *      Author: Raz Aloni
  */
-#pragma once
 
-#include <albertOS.h>
+#ifndef G8RTOS_CRITICALSECTION_H_
+#define G8RTOS_CRITICALSECTION_H_
+
+#include <G8RTOS.h>
 
 /*
  * Starts a critical section
@@ -14,11 +16,14 @@
  * 	- Disables interrupts
  * Returns: The current PRIMASK State
  */
-extern "C" int StartCriticalSection();
+extern int32_t StartCriticalSection();
 
 /*
  * Ends a critical Section
  * 	- Restores the state of the PRIMASK given an input
  * Param "IBit_State": PRIMASK State to update
  */
-extern "C" void EndCriticalSection(int32_t IBit_State);
+extern void EndCriticalSection(int32_t IBit_State);
+
+
+#endif /* G8RTOS_CRITICALSECTION_H_ */
