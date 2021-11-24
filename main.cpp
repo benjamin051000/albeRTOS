@@ -8,18 +8,27 @@
 
 void taskA() {
 while(true) {
-    // Do something
+    GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN0);
+    albertOS::sleep(1000); // let other tasks run
 }
 }
 
 void taskB() {
 while(true) {
-    // Do something else
+    GPIO_toggleOutputOnPin(GPIO_PORT_P2, GPIO_PIN1);
+    albertOS::sleep(2000); // let other tasks run
 }
 }
 
+void idleTask() {
+    // empty task to ensure RTOS always has something to do.
+    while(true) {
+        albertOS::sleep(1);
+    }
+}
+
 void per_event() {
-    // Do something once
+    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);
 }
 
 /**
@@ -29,10 +38,15 @@ int main() {
 
     albertOS::init();
 
-    albertOS::addThread(taskA, 1, "Task A");
-    albertOS::addThread(taskB, 3, "Task B");
+    GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
+    GPIO_setAsOutputPin(GPIO_PORT_P2, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2);
+    GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2);
 
-    albertOS::addPeriodicEvent(per_event, 5000);
+    albertOS::addThread(taskA, 1, "Task A");
+//    albertOS::addThread(taskB, 3, "Task B");
+    albertOS::addThread(idleTask, 4, "Idle Thread");
+
+//    albertOS::addPeriodicEvent(per_event, 5000);
 
     if(albertOS::launch())
         while(true); // Something went wrong. Wait here.
