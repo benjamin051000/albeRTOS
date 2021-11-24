@@ -8,7 +8,7 @@
 #ifndef G8RTOS_CRITICALSECTION_H_
 #define G8RTOS_CRITICALSECTION_H_
 
-#include <G8RTOS.h>
+#include <albertOS.h>
 
 /*
  * Starts a critical section

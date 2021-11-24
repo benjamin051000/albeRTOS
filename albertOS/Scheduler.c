@@ -4,7 +4,8 @@
 
 /*********************************************** Dependencies and Externs *************************************************************/
 
-#include <G8RTOS.h>
+#include <albertOS.h>
+#include <string.h>
 
 /*
  * G8RTOS_Start exists in asm

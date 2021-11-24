@@ -11,14 +11,14 @@
 // Target-specific includes
 #include <msp.h>
 #include <BSP.h>
+#include <CriticalSection.h>
 #include <driverlib.h>
 
 // Kernel includes
-#include <G8RTOS_Semaphores.h>
-#include <G8RTOS_CriticalSection.h>
-#include <G8RTOS_Scheduler.h>
-#include <G8RTOS_Structures.h> // TODO maybe include before scheduler?
-#include <G8RTOS_IPC.h>
+#include <IPC.h>
+#include <Scheduler.h>
+#include <Semaphores.h>
+#include <Structures.h> // TODO maybe include before scheduler?
 
 
 #endif /* G8RTOS_H_ */

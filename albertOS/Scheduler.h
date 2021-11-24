@@ -5,7 +5,7 @@
 #ifndef G8RTOS_SCHEDULER_H_
 #define G8RTOS_SCHEDULER_H_
 
-#include <G8RTOS.h>
+#include <albertOS.h>
 
 /*********************************************** Sizes and Limits *********************************************************************/
 #define MAX_THREADS 25

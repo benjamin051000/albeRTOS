@@ -4,8 +4,8 @@
  *  Created on: Nov 22, 2021
  *      Author: benja
  */
-#include <G8RTOS.h>
-#include <G8RTOS_Scheduler.h>
+#include <albertOS.h>
+#include <Scheduler.h>
 
 void taskA() {
 while(true) {
