@@ -15,15 +15,14 @@
  */
 struct TCB {
    int32_t* sp;
-   TCB* prev;
-   TCB* next;
-   Semaphore* blocked; //0 if not blocked, otherwise holds semaphore of resource its waiting for
-   uint32_t sleepCount; //how long left to sleep
-   int asleep; //true or false
+   TCB *prev, *next;
+   Semaphore* blocked; // 0 if not blocked, otherwise holds semaphore of resource its waiting for
+   uint32_t sleepCount; // how long left to sleep
+   bool asleep;
    uint8_t priority;
-   int isAlive; //true or false
+   bool isAlive;
    threadID threadID;
-   char threadName[MAX_NAME_LEN];
+   char name[MAX_NAME_LEN];
 };
 
 /*

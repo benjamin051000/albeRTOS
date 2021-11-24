@@ -187,7 +187,7 @@ sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
 	threadControlBlocks[tcbToInitialize].priority = priorityLevel; //highest priority is 255
 	threadControlBlocks[tcbToInitialize].threadID = ((IDCounter++) << 16) | tcbToInitialize;
     threadControlBlocks[tcbToInitialize].isAlive = 1;
-    strcpy(threadControlBlocks[tcbToInitialize].threadName, name);
+    strcpy(threadControlBlocks[tcbToInitialize].name, name);
 
 	//ADD FAKE CONTEXT, INIT STACK
 	//r0 - r12 are irrelevant for initial context
