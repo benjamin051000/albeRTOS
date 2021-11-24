@@ -28,8 +28,8 @@ struct tcb_t {
    int asleep; //true or false
    uint8_t priority;
    int isAlive; //true or false
-   threadId_t threadID;
-   char threadName[MAX_NAME_LENGTH];
+   threadID threadID;
+   char threadName[MAX_NAME_LEN];
 };
 
 /*

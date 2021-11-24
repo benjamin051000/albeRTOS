@@ -76,8 +76,7 @@ static uint32_t IDCounter;
  * The Systick interrupt will be responsible for starting a context switch between threads
  * Param "numCycles": Number of cycles for each systick interrupt
  */
-static void InitSysTick(uint32_t numCycles)
-{
+static void InitSysTick(uint32_t numCycles) {
     SysTick_Config(numCycles);
 }
 
@@ -87,8 +86,7 @@ static void InitSysTick(uint32_t numCycles)
  *  - Simple Round Robin: Choose the next running thread by selecting the currently running thread's next pointer
  *  - Check for sleeping and blocked threads
  */
-extern "C" void G8RTOS_Scheduler()
-{
+extern "C" void G8RTOS_Scheduler() {
     uint16_t currentMaxPriority = 256;
     tcb_t* tempNextThread = CurrentlyRunningThread->nextTCB;
 
@@ -113,8 +111,7 @@ extern "C" void G8RTOS_Scheduler()
  * and be responsible for handling sleeping and periodic threads
  */
 // TODO: This must be 'extern "C"' for some reason... figure out why.
-extern "C" void SysTick_Handler()
-{
+extern "C" void SysTick_Handler() {
 	systemTime += 1;
 
 	for(int j = 0; j < NumberOfPThreads; j++)
@@ -155,8 +152,7 @@ uint32_t systemTime;
  * Sets variables to an initial state (system time and number of threads)
  * Enables board for highest speed clock and disables watchdog
  */
-void G8RTOS_Init()
-{
+void albertOS::init() {
 	systemTime = 0;
 	NumberOfThreads = 0;
 	NumberOfPThreads = 0;
@@ -177,8 +173,7 @@ void G8RTOS_Init()
  * 	- Sets Context to first thread
  * Returns: Error Code for starting scheduler. This will only return if the scheduler fails
  */
-int G8RTOS_Launch(void)
-{
+sched_ErrCode albertOS::launch() {
     CurrentlyRunningThread = &threadControlBlocks[0]; //set arbitary thread
     for(int i = 0; i < NumberOfThreads; i++)
     {
@@ -195,7 +190,8 @@ int G8RTOS_Launch(void)
 	NVIC_EnableIRQ(PendSV_IRQn);
 	SysTick_enableInterrupt(); //start the ticking!
 	G8RTOS_Start(); //asm funct
-	return 0;
+
+	return NO_ERROR;
 }
 
 
@@ -209,8 +205,7 @@ int G8RTOS_Launch(void)
  * Param "threadToAdd": Void-Void Function to add as preemptable main thread
  * Returns: Error code for adding threads
  */
-int G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priorityLevel, char name[MAX_NAME_LENGTH])
-{
+sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel, char name[MAX_NAME_LEN]) {
     int32_t status = StartCriticalSection();
 
     if(NumberOfThreads >= MAX_THREADS)
@@ -287,8 +282,7 @@ int G8RTOS_AddThread(void (*threadToAdd)(void), uint8_t priorityLevel, char name
  * Param period: period of P thread to add
  * Returns: Error code for adding threads
  */
-int G8RTOS_AddPeriodicEvent(void (*PthreadToAdd)(void), uint32_t period)
-{
+sched_ErrCode albertOS::addPeriodicEvent(TaskFuncPtr PthreadToAdd, uint32_t period) {
     int32_t status = StartCriticalSection();
 
     if(NumberOfPThreads >= MAX_PTHREADS)
@@ -331,21 +325,18 @@ int G8RTOS_AddPeriodicEvent(void (*PthreadToAdd)(void), uint32_t period)
  * Puts the current thread into a sleep state.
  *  param durationMS: Duration of sleep time in ms
  */
-void sleep(uint32_t durationMS)
-{
+void albertOS::sleep(uint32_t durationMS) {
     CurrentlyRunningThread->sleepCount = durationMS + systemTime;
     CurrentlyRunningThread->asleep = true;
     SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; //yield to allow other threads to run
 }
 
 //returns the currently running thread's ID
-threadId_t G8RTOS_GetThreadId(void)
-{
+threadID albertOS::getThreadID() {
     return CurrentlyRunningThread->threadID;
 }
 
-sched_ErrCode_t G8RTOS_KillThread(threadId_t threadID)
-{
+sched_ErrCode albertOS::killThread(threadID threadID) {
     int32_t status = StartCriticalSection();
 
     if(NumberOfThreads == 1)
@@ -384,8 +375,7 @@ sched_ErrCode_t G8RTOS_KillThread(threadId_t threadID)
 }
 
 //kills currently running thread
-sched_ErrCode_t G8RTOS_KillSelf(void)
-{
+sched_ErrCode albertOS::killSelf() {
     int32_t status = StartCriticalSection();
 
     if(NumberOfThreads == 1)
@@ -407,8 +397,7 @@ sched_ErrCode_t G8RTOS_KillSelf(void)
 }
 
 //adds an aperiodic event, like an interrupt
-sched_ErrCode_t G8RTOS_AddAPeriodicEvent(void (*AthreadToAdd)(void), uint8_t priority, IRQn_Type IRQn)
-{
+sched_ErrCode albertOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t priority, IRQn_Type IRQn) {
     int32_t status = StartCriticalSection();
 
     if(IRQn < PSS_IRQn || IRQn > PORT6_IRQn)
@@ -431,8 +420,7 @@ sched_ErrCode_t G8RTOS_AddAPeriodicEvent(void (*AthreadToAdd)(void), uint8_t pri
     return NO_ERROR;
 }
 
-sched_ErrCode_t G8RTOS_KillAll(void)
-{
+sched_ErrCode albertOS::killAll() {
 
     for(int i = 0; i < MAX_THREADS; i++)
     {
