@@ -179,44 +179,48 @@ sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
         return THREADS_INCORRECTLY_ALIVE;
     }
 
-    //init tcb stack pointer
-    threadControlBlocks[tcbToInitialize].sp = &threadStacks[tcbToInitialize][STACKSIZE-16];
-	threadControlBlocks[tcbToInitialize].asleep = 0; //we start out awake
-	threadControlBlocks[tcbToInitialize].sleepCount = 0; //not sleeping
-	threadControlBlocks[tcbToInitialize].blocked = 0;
-	threadControlBlocks[tcbToInitialize].priority = priorityLevel; //highest priority is 255
-	threadControlBlocks[tcbToInitialize].threadID = ((IDCounter++) << 16) | tcbToInitialize;
-    threadControlBlocks[tcbToInitialize].isAlive = 1;
-    strcpy(threadControlBlocks[tcbToInitialize].name, name);
+    // Create the new thread control block.
+    TCB& newTCB = threadControlBlocks[tcbToInitialize];
 
-	//ADD FAKE CONTEXT, INIT STACK
-	//r0 - r12 are irrelevant for initial context
-	threadStacks[tcbToInitialize][STACKSIZE-3] = (int32_t)threadToAdd; //put function address at LR location
-	threadStacks[tcbToInitialize][STACKSIZE-2] = (int32_t)threadToAdd; //set PC, not needed for inital context though
-	threadStacks[tcbToInitialize][STACKSIZE-1] = THUMBBIT; //set status reg with thumb bit set
+    // Initialize TCB contents
+    newTCB.sp = &threadStacks[tcbToInitialize][STACKSIZE-16];
+	newTCB.asleep = false; // Start awake
+	newTCB.sleepCount = 0; // Not asleep
+	newTCB.blocked = 0;
+	newTCB.priority = priorityLevel;
+	newTCB.threadID = ((IDCounter++) << 16) | tcbToInitialize;
+    newTCB.isAlive = true;
+    strcpy(newTCB.name, name);
 
-	if(numThreads == 0) { //if head node
-	    threadControlBlocks[tcbToInitialize].prev = &threadControlBlocks[0]; //first node, switch back to self
-	    threadControlBlocks[tcbToInitialize].next = &threadControlBlocks[0];
+	// Initialize thread stack
+	// r0 - r12 are irrelevant for initial context (will be immediately overwritten)
+	threadStacks[tcbToInitialize][STACKSIZE-3] = (int32_t)threadToAdd; // Put function address at LR location
+	threadStacks[tcbToInitialize][STACKSIZE-2] = (int32_t)threadToAdd; // Set PC, but not needed for initial context
+	threadStacks[tcbToInitialize][STACKSIZE-1] = THUMBBIT; // Set status reg with thumb bit set
+
+	// If this is the only active thread, create a loop.
+	if(numThreads == 0) {
+	    newTCB.prev = &threadControlBlocks[0];
+	    newTCB.next = &threadControlBlocks[0];
 	}
 	else if(systemTime == 0) {
-        threadControlBlocks[tcbToInitialize].prev = &threadControlBlocks[tcbToInitialize-1];
-        threadControlBlocks[tcbToInitialize].prev->next = &threadControlBlocks[tcbToInitialize];
-        threadControlBlocks[tcbToInitialize].next = &threadControlBlocks[0];
-        threadControlBlocks[tcbToInitialize].next->prev = &threadControlBlocks[tcbToInitialize];
+        newTCB.prev = &threadControlBlocks[tcbToInitialize-1];
+        newTCB.prev->next = &newTCB;
+        newTCB.next = &threadControlBlocks[0];
+        newTCB.next->prev = &newTCB;
 	}
 	else {
-	    threadControlBlocks[tcbToInitialize].prev = currentThread;
-        threadControlBlocks[tcbToInitialize].next = currentThread->next;
-	    threadControlBlocks[tcbToInitialize].prev->next = &threadControlBlocks[tcbToInitialize];
-	    threadControlBlocks[tcbToInitialize].next->prev = &threadControlBlocks[tcbToInitialize];
+	    newTCB.prev = currentThread;
+        newTCB.next = currentThread->next;
+	    newTCB.prev->next = &newTCB;
+	    newTCB.next->prev = &newTCB;
 	}
 
 	numThreads++;
 
 	EndCriticalSection(status);
 
-	return NO_ERROR; //we created a thread
+	return NO_ERROR;
 }
 
 /*
@@ -227,39 +231,37 @@ sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
  * Param period: period of P thread to add
  * Returns: Error code for adding threads
  */
-sched_ErrCode albertOS::addPeriodicEvent(TaskFuncPtr PthreadToAdd, uint32_t period) {
+sched_ErrCode albertOS::addPeriodicEvent(TaskFuncPtr pThreadToAdd, uint32_t period) {
     const int32_t status = StartCriticalSection();
 
     if(numPThreads >= MAX_PTHREADS) {
         EndCriticalSection(status);
-        return THREAD_LIMIT_REACHED; //cant make any more pthreads!
+        return THREAD_LIMIT_REACHED;
     }
 
-    //init ptcb stack pointer
-    PTCB newPTCB;
-    newPTCB.currentTime = systemTime;
-    newPTCB.executeTime = systemTime + period;
-    newPTCB.period = period;
-    newPTCB.handler = PthreadToAdd;
+    // Create a new periodic thread.
+    PTCB& newPTCB = pThreads[numPThreads];
 
-    //if head node
+    newPTCB.currentTime = systemTime;
+    newPTCB.period = period;
+    newPTCB.executeTime = systemTime + newPTCB.period;
+    newPTCB.handler = pThreadToAdd;
+
     if(numPThreads == 0) {
-        newPTCB.prev = &pThreads[numPThreads]; //first node, switch back to self
+        newPTCB.prev = &pThreads[numPThreads];
         newPTCB.next = &pThreads[numPThreads];
     }
     else {
-        //doubly linked list fashion insert
         newPTCB.prev = &pThreads[numPThreads-1];
         newPTCB.prev->next = &pThreads[numPThreads];
         newPTCB.next = &pThreads[0];
         newPTCB.next->prev = &pThreads[numPThreads];
     }
 
-    pThreads[numPThreads] = newPTCB;
     numPThreads++;
 
     EndCriticalSection(status);
-    return NO_ERROR; //we created a thread
+    return NO_ERROR;
 }
 
 
