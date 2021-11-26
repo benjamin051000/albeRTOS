@@ -42,4 +42,4 @@ struct PTCB {
 };
 
 /* Pointer to the current running thread. */
-TCB* currentThread;
+extern TCB* currentThread;
