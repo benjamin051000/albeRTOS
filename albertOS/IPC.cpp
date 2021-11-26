@@ -1,60 +1,43 @@
 /*
- * G8RTOS_IPC.c
- *
- *  Created on: Jan 10, 2017
- *      Author: Daniel Gonzalez
+ * IPC.cpp
  */
 #include <albertOS.h>
 
-/*********************************************** Defines ******************************************************************************/
-
-#define FIFOSIZE 16
-#define MAX_NUMBER_OF_FIFOS 4
-
-/*********************************************** Defines ******************************************************************************/
+// Private namespace
+namespace {
+const unsigned FIFOSIZE = 16;
+const unsigned MAX_NUMBER_OF_FIFOS = 4;
 
 
-/*********************************************** Data Structures Used *****************************************************************/
-
-/*
- * FIFO struct will hold
- *  - buffer
- *  - head
- *  - tail
- *  - lost data
- *  - current size
- *  - mutex
- */
-
-typedef struct FIFO {
-    int32_t buffer[FIFOSIZE]; //where data is held
-    int32_t* head;
-    int32_t* tail;
-    int32_t lostData;
-    Semaphore currentSize;
-    Semaphore mutex;
-} FIFO_t;
+struct FIFO {
+    int32_t buffer[FIFOSIZE]; // Data buffer
+    int32_t *head, *tail;
+    int32_t lostData; // Counts amount of lost data
+    Semaphore currentSize, mutex;
+};
 
 /* Array of FIFOS */
-static FIFO_t FIFOs[4];
+FIFO FIFOs[MAX_NUMBER_OF_FIFOS];
 
-/*********************************************** Data Structures Used *****************************************************************/
+} // end of private namespace
+
 
 /*
  * Initializes FIFO Struct
  */
-int G8RTOS_InitFIFO(uint32_t FIFOIndex)
+int albertOS::initFIFO(unsigned FIFOIndex)
 {
-    if(FIFOIndex > 3)
-    {
-        return -1;
+    if(FIFOIndex >= MAX_NUMBER_OF_FIFOS) {
+        return -1; // TODO return error codes
     }
 
-    FIFOs[FIFOIndex].head = &FIFOs[FIFOIndex].buffer[0];
-    FIFOs[FIFOIndex].tail = &FIFOs[FIFOIndex].buffer[0];
-    FIFOs[FIFOIndex].lostData = 0;
-    albertOS::initSemaphore(&FIFOs[FIFOIndex].currentSize, 0);
-    albertOS::initSemaphore(&FIFOs[FIFOIndex].mutex, 1);
+    FIFO& newFIFO = FIFOs[FIFOIndex];
+
+    newFIFO.head = &newFIFO.buffer[0];
+    newFIFO.tail = &newFIFO.buffer[0];
+    newFIFO.lostData = 0;
+    albertOS::initSemaphore(&newFIFO.currentSize, 0);
+    albertOS::initSemaphore(&newFIFO.mutex, 1);
 
     return 0;
 }
@@ -66,22 +49,23 @@ int G8RTOS_InitFIFO(uint32_t FIFOIndex)
  * Param: "FIFOChoice": chooses which buffer we want to read from
  * Returns: uint32_t Data from FIFO
  */
-int32_t readFIFO(uint32_t FIFOChoice)
-{
-    int32_t data = 0;
-    albertOS::waitSemaphore(&FIFOs[FIFOChoice].mutex); //in case something else is reading
-    albertOS::waitSemaphore(&FIFOs[FIFOChoice].currentSize); //block if its empty
-    data = *FIFOs[FIFOChoice].head;
+int32_t albertOS::readFIFO(unsigned FIFOIndex) {
+    // Obtain ref to FIFO struct
+    FIFO& fifo = FIFOs[FIFOIndex];
 
-    if(FIFOs[FIFOChoice].head == &FIFOs[FIFOChoice].buffer[FIFOSIZE-1])
-    {
-        FIFOs[FIFOChoice].head = &FIFOs[FIFOChoice].buffer[0]; //overflow if necessary
+    int32_t data = 0;
+    albertOS::waitSemaphore(&fifo.mutex); //in case something else is reading
+    albertOS::waitSemaphore(&fifo.currentSize); //block if its empty
+    data = *fifo.head;
+
+    if(fifo.head == &fifo.buffer[FIFOSIZE-1]) {
+        fifo.head = &fifo.buffer[0]; //overflow if necessary
     }
-    else
-    {
-        FIFOs[FIFOChoice].head += 1; //increment head pointer
+    else {
+        fifo.head++;
     }
-    albertOS::signalSemaphore(&FIFOs[FIFOChoice].mutex);
+
+    albertOS::signalSemaphore(&fifo.mutex);
     return data;
 }
 
@@ -93,31 +77,30 @@ int32_t readFIFO(uint32_t FIFOChoice)
  *        "Data': Data being put into FIFO
  *  Returns: error code for full buffer if unable to write
  */
-int writeFIFO(uint32_t FIFOChoice, int32_t Data)
-{
+int albertOS::writeFIFO(unsigned FIFOIndex, int32_t data) {
     //G8RTOS_WaitSemaphore(&FIFOs[FIFOChoice].mutex);
 
-    if(FIFOs[FIFOChoice].currentSize == FIFOSIZE) //out of room
-    {
-        FIFOs[FIFOChoice].lostData += 1;
-        albertOS::signalSemaphore(&FIFOs[FIFOChoice].mutex);
+    // Obtain ref to FIFO struct
+    FIFO& fifo = FIFOs[FIFOIndex];
+
+    if(fifo.currentSize == FIFOSIZE) { // Out of room
+        fifo.lostData++;
+        albertOS::signalSemaphore(&fifo.mutex);
         return -1;
     }
-    else
-    {
-        *FIFOs[FIFOChoice].tail = Data; //write data
+    else {
+        *fifo.tail = data; //write data // TODO verify this ref drop-in works since there's a weird deref
 
-        if(FIFOs[FIFOChoice].tail == &FIFOs[FIFOChoice].buffer[FIFOSIZE-1]) //wrap?
-        {
-            FIFOs[FIFOChoice].tail = &FIFOs[FIFOChoice].buffer[0];
+        if(fifo.tail == &fifo.buffer[FIFOSIZE-1]) {
+
+            fifo.tail = &fifo.buffer[0];
         }
-        else
-        {
-            FIFOs[FIFOChoice].tail += 1;
+        else {
+            fifo.tail++;
         }
     }
 
-    albertOS::signalSemaphore(&FIFOs[FIFOChoice].currentSize);
+    albertOS::signalSemaphore(&fifo.currentSize);
    // G8RTOS_SignalSemaphore(&FIFOs[FIFOChoice].mutex);
     return 0;
 }

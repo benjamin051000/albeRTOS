@@ -1,24 +1,15 @@
 /*
- * G8RTOS_IPC.h
- *
- *  Created on: Jan 10, 2017
- *      Author: Daniel Gonzalez
+ * IPC.h
  */
-
-#ifndef G8RTOS_G8RTOS_IPC_H_
-#define G8RTOS_G8RTOS_IPC_H_
+#pragma once
 
 #include <albertOS.h>
-/*********************************************** Error Codes **************************************************************************/
 
-/*********************************************** Error Codes **************************************************************************/
-
-/*********************************************** Public Functions *********************************************************************/
-
+namespace albertOS {
 /*
  * Initializes One to One FIFO Struct
  */
-int G8RTOS_InitFIFO(uint32_t FIFOIndex);
+int initFIFO(uint32_t FIFOIndex);
 
 /*
  * Reads FIFO
@@ -32,14 +23,11 @@ int32_t readFIFO(uint32_t FIFO);
 /*
  * Writes to FIFO
  *  Writes data to Tail of the buffer if the buffer is not full
- *  Increments tail (wraps if ncessary)
+ *  Increments tail (wraps if necessary)
  *  Param "FIFOChoice": chooses which buffer we want to read from
  *        "Data': Data being put into FIFO
  *  Returns: error code for full buffer if unable to write
  */
 int writeFIFO(uint32_t FIFO, int32_t data);
 
-/*********************************************** Public Functions *********************************************************************/
-
-
-#endif /* G8RTOS_G8RTOS_IPC_H_ */
+} // end of namespace albertOS

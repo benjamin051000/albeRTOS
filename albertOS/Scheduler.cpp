@@ -115,6 +115,8 @@ void albertOS::init() {
 
 	// Set clock speed to 48MHz, disable watchdog
 	BSP_InitBoard();
+
+	// TODO add idle thread here
 }
 
 /*

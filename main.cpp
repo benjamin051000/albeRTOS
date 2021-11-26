@@ -33,22 +33,26 @@ void per_event() {
 /**
  * A simple example of albertOS.
  */
-int main() {
+void main() {
 
     albertOS::init();
 
+    // Setup GPIO
     GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0);
     GPIO_setAsOutputPin(GPIO_PORT_P2, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2);
     GPIO_setOutputLowOnPin(GPIO_PORT_P2, GPIO_PIN0 | GPIO_PIN1 | GPIO_PIN2);
 
+    // Add threads
     albertOS::addThread(taskA, 1, (char*)"Task A");
     albertOS::addThread(taskB, 3, (char*)"Task B");
     albertOS::addThread(idleTask, 4, (char*)"Idle Thread");
 
-    albertOS::addPeriodicEvent(per_event, 500);
+    // Add events
+    albertOS::addPeriodicEvent(per_event, 100);
 
+    // Start the kernel
     albertOS::launch();
 
-    return 0;
+    while(true); // If we end up here, something went wrong with the launch().
 }
 
