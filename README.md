@@ -7,6 +7,6 @@ Ported from the **G8RTOS**, a Real-Time Operaing System kernel in C created in M
 Many reasons!
 - Namespaces: Access control is beautiful now.
 - Object-Oriented Programming (WIP): GREATLY simplified/supercharged data structures.
-- References (instead of pointers): No more annoying deref operations.
-- STL (WIP): Need I say more?
+- References (instead of pointers): Safe memory operations.
+- STL (WIP)
 - Much more...
