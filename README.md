@@ -10,3 +10,5 @@ Many reasons!
 - References (instead of pointers): Safe memory operations.
 - STL (WIP)
 - Much more...
+
+See [main.cpp](https://github.com/benjamin051000/albertOS/blob/main/main.cpp) for an example of how to interface with the RTOS.
