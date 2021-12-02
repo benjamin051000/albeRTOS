@@ -9,9 +9,9 @@ namespace albertOS {
 
 template<typename T>
 class FIFO {
-//    const int MAX_FIFO_SIZE = 16;
+    const int FIFOSIZE = 16;
 
-    T buffer[16]; // Data buffer
+    T buffer[16]; // Data buffer // TODO won't let me use FIFOSIZE here even though it's const...
     T *head, *tail;
     unsigned lostData; // Counts amount of lost data
     Semaphore currentSize, mutex;
