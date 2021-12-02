@@ -158,10 +158,10 @@ sched_ErrCode albertOS::launch() {
  * Returns: Error code for adding threads
  */
 sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel, char name[MAX_NAME_LEN]) {
-    const int32_t status = StartCriticalSection();
+    START_CRIT_SECTION;
 
     if(numThreads >= MAX_THREADS) {
-        EndCriticalSection(status);
+        END_CRIT_SECTION;
         return THREAD_LIMIT_REACHED;
     }
 
@@ -177,7 +177,7 @@ sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
     // No threads are dead.
     // TODO this doesn't seem right. What if one of the threads is simply uninitialized? Maybe they all default to dead.
     if(tcbToInitialize == -1) {
-        EndCriticalSection(status);
+        END_CRIT_SECTION;
         return THREADS_INCORRECTLY_ALIVE;
     }
 
@@ -220,7 +220,7 @@ sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
 
 	numThreads++;
 
-	EndCriticalSection(status);
+	END_CRIT_SECTION;
 
 	return NO_ERROR;
 }
@@ -234,10 +234,10 @@ sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
  * Returns: Error code for adding threads
  */
 sched_ErrCode albertOS::addPeriodicEvent(TaskFuncPtr pThreadToAdd, uint32_t period) {
-    const int32_t status = StartCriticalSection();
+    START_CRIT_SECTION;
 
     if(numPThreads >= MAX_PTHREADS) {
-        EndCriticalSection(status);
+        END_CRIT_SECTION;
         return THREAD_LIMIT_REACHED;
     }
 
@@ -262,7 +262,7 @@ sched_ErrCode albertOS::addPeriodicEvent(TaskFuncPtr pThreadToAdd, uint32_t peri
 
     numPThreads++;
 
-    EndCriticalSection(status);
+    END_CRIT_SECTION;
     return NO_ERROR;
 }
 
@@ -283,10 +283,10 @@ inline threadID albertOS::getThreadID() {
 }
 
 sched_ErrCode albertOS::killThread(threadID threadID) {
-    const int32_t status = StartCriticalSection();
+    START_CRIT_SECTION;
 
     if(numThreads == 1) {
-        EndCriticalSection(status);
+        END_CRIT_SECTION;
         return CANNOT_KILL_LAST_THREAD;
     }
 
@@ -300,7 +300,7 @@ sched_ErrCode albertOS::killThread(threadID threadID) {
     }
     // If we didn't find the thread, this ID is invalid (or the thread has mysteriously disappeared...)
     if(threadToKill == -1) {
-        EndCriticalSection(status);
+        END_CRIT_SECTION;
         return THREAD_DOES_NOT_EXIST;
     }
 
@@ -312,7 +312,7 @@ sched_ErrCode albertOS::killThread(threadID threadID) {
 
     numThreads--;
 
-    EndCriticalSection(status);
+    END_CRIT_SECTION;
     return NO_ERROR;
 }
 
@@ -342,15 +342,15 @@ sched_ErrCode albertOS::killSelf() {
 
 // Adds an aperiodic event, like an interrupt
 sched_ErrCode albertOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t priority, IRQn_Type IRQn) {
-    const int32_t status = StartCriticalSection();
+    START_CRIT_SECTION;
 
     if(IRQn < PSS_IRQn || IRQn > PORT6_IRQn) {
-        EndCriticalSection(status);
+        END_CRIT_SECTION;
         return IRQn_INVALID;
     }
 
     if(priority > 6) {
-        EndCriticalSection(status);
+        END_CRIT_SECTION;
         return HWI_PRIORITY_INVALID;
     }
 
@@ -359,7 +359,7 @@ sched_ErrCode albertOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t prio
     NVIC_SetPriority(IRQn, priority);
     NVIC_EnableIRQ(IRQn);
 
-    EndCriticalSection(status);
+    END_CRIT_SECTION;
     return NO_ERROR;
 }
 
