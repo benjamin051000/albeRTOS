@@ -36,8 +36,8 @@ int albertOS::initFIFO(unsigned FIFOIndex)
     newFIFO.head = &newFIFO.buffer[0];
     newFIFO.tail = &newFIFO.buffer[0];
     newFIFO.lostData = 0;
-    albertOS::initSemaphore(&newFIFO.currentSize, 0);
-    albertOS::initSemaphore(&newFIFO.mutex, 1);
+    albertOS::initSemaphore(newFIFO.currentSize, 0);
+    albertOS::initSemaphore(newFIFO.mutex, 1);
 
     return 0;
 }
@@ -54,8 +54,8 @@ int32_t albertOS::readFIFO(unsigned FIFOIndex) {
     FIFO_old& fifo = FIFOs[FIFOIndex];
 
     int32_t data = 0;
-    albertOS::waitSemaphore(&fifo.mutex); //in case something else is reading
-    albertOS::waitSemaphore(&fifo.currentSize); //block if its empty
+    albertOS::waitSemaphore(fifo.mutex); //in case something else is reading
+    albertOS::waitSemaphore(fifo.currentSize); //block if its empty
     data = *fifo.head;
 
     if(fifo.head == &fifo.buffer[FIFOSIZE-1]) {
@@ -65,7 +65,7 @@ int32_t albertOS::readFIFO(unsigned FIFOIndex) {
         fifo.head++;
     }
 
-    albertOS::signalSemaphore(&fifo.mutex);
+    albertOS::signalSemaphore(fifo.mutex);
     return data;
 }
 
@@ -85,7 +85,7 @@ int albertOS::writeFIFO(unsigned FIFOIndex, int32_t data) {
 
     if(fifo.currentSize == FIFOSIZE) { // Out of room
         fifo.lostData++;
-        albertOS::signalSemaphore(&fifo.mutex);
+        albertOS::signalSemaphore(fifo.mutex);
         return -1;
     }
     else {
@@ -100,7 +100,7 @@ int albertOS::writeFIFO(unsigned FIFOIndex, int32_t data) {
         }
     }
 
-    albertOS::signalSemaphore(&fifo.currentSize);
+    albertOS::signalSemaphore(fifo.currentSize);
    // G8RTOS_SignalSemaphore(&FIFOs[FIFOChoice].mutex);
     return 0;
 }

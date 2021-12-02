@@ -29,8 +29,8 @@ FIFO<T>::FIFO() {
     head = &buffer[0];
     tail = &buffer[0];
     lostData = 0;
-    albertOS::initSemaphore(&currentSize, 0);
-    albertOS::initSemaphore(&mutex, 1);
+    albertOS::initSemaphore(currentSize, 0);
+    albertOS::initSemaphore(mutex, 1);
 }
 
 
@@ -45,8 +45,8 @@ template<typename T>
 T FIFO<T>::read() {
     T data;
 
-    albertOS::waitSemaphore(&mutex); //in case something else is reading
-    albertOS::waitSemaphore(&currentSize); //block if its empty
+    albertOS::waitSemaphore(mutex); //in case something else is reading
+    albertOS::waitSemaphore(currentSize); //block if its empty
     data = *head;
 
     if(head == &buffer[FIFOSIZE-1]) {
@@ -56,7 +56,7 @@ T FIFO<T>::read() {
         head++;
     }
 
-    albertOS::signalSemaphore(&mutex);
+    albertOS::signalSemaphore(mutex);
     return data;
 }
 
@@ -73,7 +73,7 @@ bool FIFO<T>::write(T data) {
 
     if(currentSize == FIFOSIZE) { // Out of room
         lostData++;
-        albertOS::signalSemaphore(&mutex);
+        albertOS::signalSemaphore(mutex);
         return false;
     }
     else {
@@ -88,7 +88,7 @@ bool FIFO<T>::write(T data) {
         }
     }
 
-    albertOS::signalSemaphore(&currentSize);
+    albertOS::signalSemaphore(currentSize);
    // G8RTOS_SignalSemaphore(&FIFOs[FIFOChoice].mutex);
     return true;
 }

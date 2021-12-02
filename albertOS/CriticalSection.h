@@ -8,6 +8,9 @@
 
 #include <albertOS.h>
 
+#define START_CRIT_SECTION const int32_t criticalSectionStatus = StartCriticalSection();
+#define END_CRIT_SECTION EndCriticalSection(criticalSectionStatus);
+
 /*
  * Starts a critical section
  * 	- Saves the state of the current PRIMASK (I-bit)

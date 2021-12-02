@@ -11,7 +11,7 @@ namespace albertOS {
  * Param "s": Pointer to semaphore
  * Param "value": Value to initialize semaphore to
  */
-void initSemaphore(Semaphore *s, int32_t value);
+void initSemaphore(Semaphore &s, int32_t value);
 
 /*
  * Waits for a semaphore to be available (value greater than 0)
@@ -19,13 +19,13 @@ void initSemaphore(Semaphore *s, int32_t value);
  * 	- Spinlocks to wait for semaphore
  * Param "s": Pointer to semaphore to wait on
  */
-void waitSemaphore(Semaphore *s);
+void waitSemaphore(Semaphore &s);
 
 /*
  * Signals the completion of the usage of a semaphore
  * 	- Increments the semaphore value by 1
  * Param "s": Pointer to semaphore to be signalled
  */
-void signalSemaphore(Semaphore *s);
+void signalSemaphore(Semaphore &s);
 
 } // end of namespace albertOS
