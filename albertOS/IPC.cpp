@@ -9,7 +9,7 @@ const unsigned FIFOSIZE = 16;
 const unsigned MAX_NUMBER_OF_FIFOS = 4;
 
 
-struct FIFO {
+struct FIFO_old {
     int32_t buffer[FIFOSIZE]; // Data buffer
     int32_t *head, *tail;
     int32_t lostData; // Counts amount of lost data
@@ -17,7 +17,7 @@ struct FIFO {
 };
 
 /* Array of FIFOS */
-FIFO FIFOs[MAX_NUMBER_OF_FIFOS];
+FIFO_old FIFOs[MAX_NUMBER_OF_FIFOS];
 
 } // end of private namespace
 
@@ -31,7 +31,7 @@ int albertOS::initFIFO(unsigned FIFOIndex)
         return -1; // TODO return error codes
     }
 
-    FIFO& newFIFO = FIFOs[FIFOIndex];
+    FIFO_old& newFIFO = FIFOs[FIFOIndex];
 
     newFIFO.head = &newFIFO.buffer[0];
     newFIFO.tail = &newFIFO.buffer[0];
@@ -51,7 +51,7 @@ int albertOS::initFIFO(unsigned FIFOIndex)
  */
 int32_t albertOS::readFIFO(unsigned FIFOIndex) {
     // Obtain ref to FIFO struct
-    FIFO& fifo = FIFOs[FIFOIndex];
+    FIFO_old& fifo = FIFOs[FIFOIndex];
 
     int32_t data = 0;
     albertOS::waitSemaphore(&fifo.mutex); //in case something else is reading
@@ -81,7 +81,7 @@ int albertOS::writeFIFO(unsigned FIFOIndex, int32_t data) {
     //G8RTOS_WaitSemaphore(&FIFOs[FIFOChoice].mutex);
 
     // Obtain ref to FIFO struct
-    FIFO& fifo = FIFOs[FIFOIndex];
+    FIFO_old& fifo = FIFOs[FIFOIndex];
 
     if(fifo.currentSize == FIFOSIZE) { // Out of room
         fifo.lostData++;
