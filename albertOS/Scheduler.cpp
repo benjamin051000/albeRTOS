@@ -15,7 +15,7 @@ uint32_t systemTime;
 //extern uint32_t SystemCoreClock;
 
 /* Pointer to the currently running Thread Control Block */
-//TCB* currentThread;
+TCB* currentThread;
 
 
 /* Private namespace */
