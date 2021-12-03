@@ -17,6 +17,10 @@ uint32_t systemTime;
 /* Pointer to the currently running Thread Control Block */
 TCB* currentThread;
 
+/* Manually sets the PendSV interrupt flag to trigger a context switch. */
+void contextSwitch() {
+    SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+}
 
 /* Private namespace */
 namespace {
@@ -42,9 +46,9 @@ unsigned numPThreads;
 /* Used to assign a unique ID to every thread */
 unsigned IDCounter;
 
-/* Manually sets the PendSV interrupt flag to trigger a context switch. */
-inline void contextSwitch() {
-    SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+
+void idleThread() {
+    while(true);
 }
 
 } // end of private namespace
@@ -58,10 +62,11 @@ extern "C" void G8RTOS_Scheduler() {
     unsigned currentMaxPriority = 256;
 
     TCB* tempNextThread = currentThread->next;
+//    TCB& tempNextThread = &currentThread->next;
 
     for(unsigned i = 0; i < numThreads; i++) { //iterates through all threads
 
-        if(!tempNextThread->asleep && (tempNextThread->blocked != 0  || (*tempNextThread->blocked) != 0)) { //not asleep, not blocked
+        if(!tempNextThread->asleep && tempNextThread->blocked == 0) {//  || (*tempNextThread->blocked) != 0)) { // not asleep, not blocked
 
             if(tempNextThread->priority < currentMaxPriority) {
                 currentThread = tempNextThread;
@@ -116,7 +121,8 @@ void albertOS::init() {
 	// Set clock speed to 48MHz, disable watchdog
 	BSP_InitBoard();
 
-	// TODO add idle thread here
+	// Add idle thread, which ensures there is always at least 1 thread available.
+	albertOS::addThread(idleThread, 255, (char*)"<idle>");
 }
 
 /*

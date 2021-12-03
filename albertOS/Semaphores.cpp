@@ -3,12 +3,11 @@
  */
 #include <albertOS.h>
 
+extern void contextSwitch();
 
 void albertOS::initSemaphore(Semaphore& s, int32_t value) {
     START_CRIT_SECTION;
-
 	s = value;
-
 	END_CRIT_SECTION;
 }
 
@@ -18,9 +17,11 @@ void albertOS::waitSemaphore(Semaphore& s) {
 
     s--; // declare ownership
 
+    // If s < 0, it's currently claimed by another thread.
     if(s < 0) {
-        currentThread->blocked = &s; //block thread
-        SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; //yield to allow other threads to run
+        currentThread->blocked = &s; // block this thread
+        END_CRIT_SECTION;
+        contextSwitch(); // do something else until this thread is unblocked (other thread releases the Semaphore)
     }
 
     END_CRIT_SECTION;
@@ -38,13 +39,26 @@ void albertOS::signalSemaphore(Semaphore& s) {
 
     s++;
 
+    // If value leq 0, other threads are blocking for this resource.
     if(s <= 0) {
-        TCB* ptr = currentThread->next;
-        while(ptr->blocked != &s) { // unblock first thread associated with this semaphore
-            ptr = ptr->next;
+
+        const TCB * const curr_thread_temp = currentThread;
+        TCB* thread = currentThread->next;
+
+        // Iterate through each thread.
+        while(thread != curr_thread_temp) {
+            if(thread->blocked == &s) // If the thread is blocked by this Semaphore,
+                thread->blocked = 0; // Unblock it.
+
+            thread = thread->next;
         }
 
-        *(ptr->blocked) = 0; //make it unblocked
+//        while(blocked_thread->blocked != &s) { // unblock one
+//            blocked_thread = blocked_thread->next;
+//        }
+//
+//        // blocked_thread->blocked == &s, so blocked_thread is blocked by this semaphore!
+//        blocked_thread->blocked = nullptr; //make it unblocked
     }
     END_CRIT_SECTION;
 }
