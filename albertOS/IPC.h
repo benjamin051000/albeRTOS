@@ -7,25 +7,25 @@
 
 namespace albertOS {
 
-template<typename T>
+template<typename T, int SIZE>
 class FIFO {
-    const int FIFOSIZE = 16;
+    const int FIFOSIZE = SIZE;
 
-    T buffer[16]; // Data buffer // TODO won't let me use FIFOSIZE here even though it's const...
+    T buffer[SIZE]; // Data buffer // TODO replace with std::array for nicer api
     T *head, *tail;
     unsigned lostData; // Counts amount of lost data
     Semaphore currentSize, mutex;
 public:
     // Constructor
-    FIFO();
+    FIFO(); // Call other constructor with default arg
 
     T read();
     bool write(T data);
 };
 
 
-template<typename T>
-FIFO<T>::FIFO() {
+template<typename T, int SIZE>
+FIFO<T, SIZE>::FIFO() {
     head = &buffer[0];
     tail = &buffer[0];
     lostData = 0;
@@ -41,8 +41,8 @@ FIFO<T>::FIFO() {
  * Param: "FIFOChoice": chooses which buffer we want to read from
  * Returns: uint32_t Data from FIFO
  */
-template<typename T>
-T FIFO<T>::read() {
+template<typename T, int SIZE>
+T FIFO<T, SIZE>::read() {
     T data;
 
     albertOS::waitSemaphore(currentSize); // block if empty
@@ -67,8 +67,8 @@ T FIFO<T>::read() {
  *        "Data": Data being put into FIFO
  *  Returns: false for full buffer (unable to write), true if no errors
  */
-template<typename T>
-bool FIFO<T>::write(T data) {
+template<typename T, int SIZE>
+bool FIFO<T, SIZE>::write(T data) {
     albertOS::waitSemaphore(mutex);
 
     if(currentSize == FIFOSIZE) { // Out of room
