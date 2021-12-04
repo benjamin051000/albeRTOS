@@ -7,25 +7,27 @@
 
 namespace albertOS {
 
-template<typename T, int SIZE>
+template<typename T, int MAXSIZE>
 class FIFO {
-    const int FIFOSIZE = SIZE;
-
-    T buffer[SIZE]; // Data buffer // TODO replace with std::array for nicer api
+    T buffer[MAXSIZE]; // Data buffer // TODO replace with std::array for nicer api
     T *head, *tail;
     unsigned lostData; // Counts amount of lost data
     Semaphore currentSize, mutex;
 public:
     // Constructor
-    FIFO(); // Call other constructor with default arg
+    FIFO();
 
     T read();
     bool write(T data);
+
+    int32_t size() const {return currentSize;}
+    bool full() const {return currentSize == MAXSIZE;}
+
 };
 
 
-template<typename T, int SIZE>
-FIFO<T, SIZE>::FIFO() {
+template<typename T, int MAXSIZE>
+FIFO<T, MAXSIZE>::FIFO() {
     head = &buffer[0];
     tail = &buffer[0];
     lostData = 0;
@@ -41,15 +43,15 @@ FIFO<T, SIZE>::FIFO() {
  * Param: "FIFOChoice": chooses which buffer we want to read from
  * Returns: uint32_t Data from FIFO
  */
-template<typename T, int SIZE>
-T FIFO<T, SIZE>::read() {
+template<typename T, int MAXSIZE>
+T FIFO<T, MAXSIZE>::read() {
     T data;
 
     albertOS::waitSemaphore(currentSize); // block if empty
     albertOS::waitSemaphore(mutex); //in case something else is reading
     data = *head;
 
-    if(head == &buffer[FIFOSIZE-1]) {
+    if(head == &buffer[MAXSIZE-1]) {
         head = &buffer[0]; //overflow if necessary
     }
     else {
@@ -67,11 +69,11 @@ T FIFO<T, SIZE>::read() {
  *        "Data": Data being put into FIFO
  *  Returns: false for full buffer (unable to write), true if no errors
  */
-template<typename T, int SIZE>
-bool FIFO<T, SIZE>::write(T data) {
+template<typename T, int MAXSIZE>
+bool FIFO<T, MAXSIZE>::write(T data) {
     albertOS::waitSemaphore(mutex);
 
-    if(currentSize == FIFOSIZE) { // Out of room
+    if(currentSize == MAXSIZE) { // Out of room
         lostData++;
         albertOS::signalSemaphore(mutex);
         return false;
@@ -79,7 +81,7 @@ bool FIFO<T, SIZE>::write(T data) {
     else {
         *tail = data; //write data // TODO verify this ref drop-in works since there's a weird deref
 
-        if(tail == &buffer[FIFOSIZE-1]) {
+        if(tail == &buffer[MAXSIZE-1]) {
 
             tail = &buffer[0];
         }
