@@ -1,6 +1,6 @@
 #include <albeRTOS.h>
 
-void count_s() {
+[[noreturn]] static void count_s() {
 	int s = 0;
 
 	while(true) {
@@ -9,7 +9,7 @@ void count_s() {
 	}
 }
 
-void count_ms() {
+[[noreturn]] static void count_ms() {
 	int ms = 0;
 
 	while(true) {
@@ -18,7 +18,7 @@ void count_ms() {
 	}
 }
 
-int main() {
+[[noreturn]] int main() {
 
 	albeRTOS::init();
 
@@ -28,10 +28,5 @@ int main() {
 	albeRTOS::addThread(count_ms, 1, (char*)"Count milliseconds");
 
 	albeRTOS::launch();
-
-	// unreachable!
-	while(true);
-
-	return 0;
 }
 

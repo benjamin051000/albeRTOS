@@ -3,7 +3,7 @@
 #include <criticalsection.h>
 
 /* G8RTOS_Start exists in asm */
-extern "C" void start_RTOS(void);
+extern "C" [[noreturn]] void start_RTOS(void);
 
 /* Holds the current time for the whole System */
 // TODO this has to be declared in global scope (external linkage) for some reason. Not sure why
@@ -127,7 +127,7 @@ void albeRTOS::init() {
  * 	- Sets Context to first thread
  * Returns: Error Code for starting scheduler. This will only return if the scheduler fails
  */
-sched_ErrCode albeRTOS::launch() {
+[[noreturn]] sched_ErrCode albeRTOS::launch() {
     currentThread = &threadControlBlocks[0]; //set arbitary thread
     for(unsigned i = 0; i < numThreads; i++) {
         if(threadControlBlocks[i].priority < currentThread->priority) {
@@ -145,8 +145,6 @@ sched_ErrCode albeRTOS::launch() {
 	// SysTick_enableInterrupt(); // Start the ticking!
 
 	start_RTOS(); //asm func
-
-	return NO_ERROR;
 }
 
 
@@ -197,6 +195,7 @@ sched_ErrCode albeRTOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
     newTCB.isAlive = true;
 	// TODO fix this
     // strcpy(newTCB.name, name);
+	(void)name;
 
 	// Initialize thread stack
 	// r0 - r12 are irrelevant for initial context (will be immediately overwritten)
@@ -351,6 +350,7 @@ sched_ErrCode albeRTOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t prio
 	// TODO BUG horribly broken. this is currently architecture-specific.
 	if(true) {
     // if(IRQn < PSS_IRQn || IRQn > PORT6_IRQn) {
+		(void)IRQn;
         END_CRIT_SECTION;
         return IRQn_INVALID;
     }
@@ -363,6 +363,7 @@ sched_ErrCode albeRTOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t prio
     // TODO used to be prepended with __, but the macro should resolve to that anyway. Ensure still works.
 	// TODO architecture-specific!
     // NVIC_SetVector(IRQn, (uint32_t)AthreadToAdd);
+	(void)AthreadToAdd;
     // NVIC_SetPriority(IRQn, priority);
     // NVIC_EnableIRQ(IRQn);
 

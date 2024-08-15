@@ -42,7 +42,7 @@ void init();
  * 	- Sets Context to first thread
  * Returns: Error Code for starting scheduler. This will only return if the scheduler fails
  */
-sched_ErrCode launch();
+[[noreturn]] sched_ErrCode launch();
 
 /*
  * Adds threads to G8RTOS Scheduler

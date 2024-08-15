@@ -1,7 +1,8 @@
 #ifdef TODOREMOVE
 #include <stdint.h>
+#include <stdbool.h>
 
-void start_RTOS(void) {}
+[[noreturn]] void start_RTOS(void) { while(true); }
 
 /*
  * Starts a critical section
@@ -16,5 +17,5 @@ int32_t StartCriticalSection() { return -1;}
  * 	- Restores the state of the PRIMASK given an input
  * Param "IBit_State": PRIMASK State to update
  */
-void EndCriticalSection(int32_t IBit_State) {}
+void EndCriticalSection(int32_t IBit_State) { (void)IBit_State; }
 #endif
