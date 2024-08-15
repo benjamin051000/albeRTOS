@@ -1,11 +1,4 @@
-/*
- * main.cpp
- *
- *  Created on: Nov 22, 2021
- *      Author: Benjamin Wheeler
- */
-#include <albertOS.h>
-
+#include <albeRTOS/scheduler.h>
 
 void taskA() {
 while(true) {

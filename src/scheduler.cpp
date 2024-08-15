@@ -1,8 +1,6 @@
-/*
- * Scheduler.cpp
- */
-#include <albertOS.h>
-#include <string.h> // for strcpy()
+#include <scheduler.h>
+#include <structures.h>
+#include <criticalsection.h>
 
 /* G8RTOS_Start exists in asm */
 extern "C" void start_RTOS(void);
@@ -19,7 +17,8 @@ TCB* currentThread;
 
 /* Manually sets the PendSV interrupt flag to trigger a context switch. */
 void contextSwitch() {
-    SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+	// TODO this is architecture-specific!
+    // SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }
 
 /* Private namespace */
@@ -32,7 +31,7 @@ const auto THUMBBIT = 0x01000000;
 TCB threadControlBlocks[MAX_THREADS];
 
 /* A matrix which holds individual stacks for each thread */
-int32_t threadStacks[MAX_THREADS][STACKSIZE];
+intptr_t threadStacks[MAX_THREADS][STACKSIZE];
 
 /* Memory to hold period event thread info */
 PTCB pThreads[MAX_PTHREADS];
@@ -45,11 +44,6 @@ unsigned numPThreads;
 
 /* Used to assign a unique ID to every thread */
 unsigned IDCounter;
-
-
-void idleThread() {
-    while(true);
-}
 
 } // end of private namespace
 
@@ -107,22 +101,24 @@ extern "C" void SysTick_Handler() {
 
 
 /* Sets RTOS to an initial state (system time and number of threads) */
-void albertOS::init() {
+void albeRTOS::init() {
 	systemTime = 0;
 	numThreads = 0;
 	numPThreads = 0;
 	IDCounter = 0;
 
 	// Relocate vector table
-	uint32_t newVTORTable = 0x20000000;
-	memcpy((uint32_t *)newVTORTable, (uint32_t *)SCB->VTOR, 57*4); // 57 interrupt vectors to copy
-	SCB->VTOR = newVTORTable;
+	// TODO this is architecture-specific!
+	// uint32_t newVTORTable = 0x20000000;
+	// memcpy((uint32_t *)newVTORTable, (uint32_t *)SCB->VTOR, 57*4); // 57 interrupt vectors to copy
+	// SCB->VTOR = newVTORTable;
 
 	// Set clock speed to 48MHz, disable watchdog
-	BSP_InitBoard();
+	// TODO this is architecture-specific!
+	// BSP_InitBoard();
 
-	// Add idle thread, which ensures there is always at least 1 thread available.
-	albertOS::addThread(idleThread, 255, (char*)"<idle>");
+	// Add an idle thread, which ensures there is always at least 1 thread available.
+	addThread([](){while(true);}, 255, (char*)"idle");
 }
 
 /*
@@ -131,7 +127,7 @@ void albertOS::init() {
  * 	- Sets Context to first thread
  * Returns: Error Code for starting scheduler. This will only return if the scheduler fails
  */
-sched_ErrCode albertOS::launch() {
+sched_ErrCode albeRTOS::launch() {
     currentThread = &threadControlBlocks[0]; //set arbitary thread
     for(unsigned i = 0; i < numThreads; i++) {
         if(threadControlBlocks[i].priority < currentThread->priority) {
@@ -139,13 +135,14 @@ sched_ErrCode albertOS::launch() {
         }
     }
 
-    SysTick_Config(ClockSys_GetSysFreq() / 1000); // Set SysTick timer to 1 ms
+	// TODO all architecture-specific!
+    // SysTick_Config(ClockSys_GetSysFreq() / 1000); // Set SysTick timer to 1 ms
 	//set interrupt priority levels PendSV exceptions
-	NVIC_SetPriority(PendSV_IRQn, 6);
-	NVIC_SetPriority(SysTick_IRQn , 6);
+	// NVIC_SetPriority(PendSV_IRQn, 6);
+	// NVIC_SetPriority(SysTick_IRQn , 6);
 	//enable PendSV interrupts
-	NVIC_EnableIRQ(PendSV_IRQn);
-	SysTick_enableInterrupt(); // Start the ticking!
+	// NVIC_EnableIRQ(PendSV_IRQn);
+	// SysTick_enableInterrupt(); // Start the ticking!
 
 	start_RTOS(); //asm func
 
@@ -163,7 +160,7 @@ sched_ErrCode albertOS::launch() {
  * Param "threadToAdd": Void-Void Function to add as preemptable main thread
  * Returns: Error code for adding threads
  */
-sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel, char name[MAX_NAME_LEN]) {
+sched_ErrCode albeRTOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel, char name[MAX_NAME_LEN]) {
     START_CRIT_SECTION;
 
     if(numThreads >= MAX_THREADS) {
@@ -196,14 +193,15 @@ sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
 	newTCB.sleepCount = 0; // Not asleep
 	newTCB.blocked = 0;
 	newTCB.priority = priorityLevel;
-	newTCB.threadID = ((IDCounter++) << 16) | tcbToInitialize;
+	newTCB.id = ((IDCounter++) << 16) | tcbToInitialize;
     newTCB.isAlive = true;
-    strcpy(newTCB.name, name);
+	// TODO fix this
+    // strcpy(newTCB.name, name);
 
 	// Initialize thread stack
 	// r0 - r12 are irrelevant for initial context (will be immediately overwritten)
-	threadStacks[tcbToInitialize][STACKSIZE-3] = (int32_t)threadToAdd; // Put function address at LR location
-	threadStacks[tcbToInitialize][STACKSIZE-2] = (int32_t)threadToAdd; // Set PC, but not needed for initial context
+	threadStacks[tcbToInitialize][STACKSIZE-3] = (intptr_t)threadToAdd; // Put function address at LR location
+	threadStacks[tcbToInitialize][STACKSIZE-2] = (intptr_t)threadToAdd; // Set PC, but not needed for initial context
 	threadStacks[tcbToInitialize][STACKSIZE-1] = THUMBBIT; // Set status reg with thumb bit set
 
 	// If this is the only active thread, create a loop.
@@ -239,7 +237,7 @@ sched_ErrCode albertOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
  * Param period: period of P thread to add
  * Returns: Error code for adding threads
  */
-sched_ErrCode albertOS::addPeriodicEvent(TaskFuncPtr pThreadToAdd, uint32_t period) {
+sched_ErrCode albeRTOS::addPeriodicEvent(TaskFuncPtr pThreadToAdd, uint32_t period) {
     START_CRIT_SECTION;
 
     if(numPThreads >= MAX_PTHREADS) {
@@ -277,18 +275,18 @@ sched_ErrCode albertOS::addPeriodicEvent(TaskFuncPtr pThreadToAdd, uint32_t peri
  * Puts the current thread into a sleep state.
  *  param durationMS: Duration of sleep time in ms
  */
-void albertOS::sleep(uint32_t durationMS) {
+void albeRTOS::sleep(uint32_t durationMS) {
     currentThread->sleepCount = durationMS + systemTime;
     currentThread->asleep = true;
     contextSwitch(); //yield to allow other threads to run
 }
 
 //returns the currently running thread's ID
-inline threadID albertOS::getThreadID() {
-    return currentThread->threadID;
+inline threadID albeRTOS::getThreadID() {
+    return currentThread->id;
 }
 
-sched_ErrCode albertOS::killThread(threadID threadID) {
+sched_ErrCode albeRTOS::killThread(threadID threadID) {
     START_CRIT_SECTION;
 
     if(numThreads == 1) {
@@ -299,7 +297,7 @@ sched_ErrCode albertOS::killThread(threadID threadID) {
     int threadToKill = -1;
 
     for(unsigned i = 0; i < numThreads; i++) {
-        if(threadControlBlocks[i].threadID == threadID) {
+        if(threadControlBlocks[i].id == threadID) {
             threadToKill = i;
             break;
         }
@@ -323,7 +321,7 @@ sched_ErrCode albertOS::killThread(threadID threadID) {
 }
 
 // Kills currently running thread
-sched_ErrCode albertOS::killSelf() {
+sched_ErrCode albeRTOS::killSelf() {
 //    const int32_t status = StartCriticalSection();
 //
 //    if(numThreads == 1) {
@@ -341,16 +339,18 @@ sched_ErrCode albertOS::killSelf() {
 //
 //    EndCriticalSection(status);
 
-    albertOS::killThread(albertOS::getThreadID());
+    killThread(getThreadID());
 
     return NO_ERROR;
 }
 
 // Adds an aperiodic event, like an interrupt
-sched_ErrCode albertOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t priority, IRQn_Type IRQn) {
+sched_ErrCode albeRTOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t priority, IRQn_Type IRQn) {
     START_CRIT_SECTION;
 
-    if(IRQn < PSS_IRQn || IRQn > PORT6_IRQn) {
+	// TODO BUG horribly broken. this is currently architecture-specific.
+	if(true) {
+    // if(IRQn < PSS_IRQn || IRQn > PORT6_IRQn) {
         END_CRIT_SECTION;
         return IRQn_INVALID;
     }
@@ -361,15 +361,16 @@ sched_ErrCode albertOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t prio
     }
 
     // TODO used to be prepended with __, but the macro should resolve to that anyway. Ensure still works.
-    NVIC_SetVector(IRQn, (uint32_t)AthreadToAdd);
-    NVIC_SetPriority(IRQn, priority);
-    NVIC_EnableIRQ(IRQn);
+	// TODO architecture-specific!
+    // NVIC_SetVector(IRQn, (uint32_t)AthreadToAdd);
+    // NVIC_SetPriority(IRQn, priority);
+    // NVIC_EnableIRQ(IRQn);
 
     END_CRIT_SECTION;
     return NO_ERROR;
 }
 
-sched_ErrCode albertOS::killAll() {
+sched_ErrCode albeRTOS::killAll() {
 
     for(unsigned i = 0; i < MAX_THREADS; i++) {
         if(threadControlBlocks[i].isAlive && &threadControlBlocks[i] != currentThread) {

@@ -1,18 +1,18 @@
-/*
- * Semaphores.cpp
- */
-#include <albertOS.h>
+#include <structures.h>
+#include <semaphores.h>
+#include <criticalsection.h>
+#include <scheduler.h>
 
 extern void contextSwitch();
 
-void albertOS::initSemaphore(Semaphore& s, int32_t value) {
+void albeRTOS::initSemaphore(Semaphore& s, int32_t value) {
     START_CRIT_SECTION;
 	s = value;
 	END_CRIT_SECTION;
 }
 
 
-void albertOS::waitSemaphore(Semaphore& s) {
+void albeRTOS::waitSemaphore(Semaphore& s) {
     START_CRIT_SECTION;
 
     s--; // declare ownership
@@ -34,7 +34,7 @@ void albertOS::waitSemaphore(Semaphore& s) {
  * Param "s": Pointer to semaphore to be signaled
  * THIS IS A CRITICAL SECTION
  */
-void albertOS::signalSemaphore(Semaphore& s) {
+void albeRTOS::signalSemaphore(Semaphore& s) {
     START_CRIT_SECTION;
 
     s++;

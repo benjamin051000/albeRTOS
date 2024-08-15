@@ -1,9 +1,8 @@
 #pragma once
 
-#include "structures.h"
-#include "semaphores.h"
+#include <semaphores.h>
 
-namespace albertOS {
+namespace albeRTOS {
 
 template<typename T, int MAXSIZE>
 class FIFO {
@@ -29,8 +28,8 @@ FIFO<T, MAXSIZE>::FIFO() {
     head = &buffer[0];
     tail = &buffer[0];
     lostData = 0;
-    albertOS::initSemaphore(currentSize, 0);
-    albertOS::initSemaphore(mutex, 1);
+	initSemaphore(currentSize, 0);
+    initSemaphore(mutex, 1);
 }
 
 
@@ -45,8 +44,8 @@ template<typename T, int MAXSIZE>
 T FIFO<T, MAXSIZE>::read() {
     T data;
 
-    albertOS::waitSemaphore(currentSize); // block if empty
-    albertOS::waitSemaphore(mutex); //in case something else is reading
+    waitSemaphore(currentSize); // block if empty
+    waitSemaphore(mutex); //in case something else is reading
     data = *head;
 
     if(head == &buffer[MAXSIZE-1]) {
@@ -56,7 +55,7 @@ T FIFO<T, MAXSIZE>::read() {
         head++;
     }
 
-    albertOS::signalSemaphore(mutex);
+    signalSemaphore(mutex);
     return data;
 }
 
@@ -69,11 +68,11 @@ T FIFO<T, MAXSIZE>::read() {
  */
 template<typename T, int MAXSIZE>
 bool FIFO<T, MAXSIZE>::write(T data) {
-    albertOS::waitSemaphore(mutex);
+    waitSemaphore(mutex);
 
     if(currentSize == MAXSIZE) { // Out of room
         lostData++;
-        albertOS::signalSemaphore(mutex);
+        signalSemaphore(mutex);
         return false;
     }
     else {
@@ -88,9 +87,9 @@ bool FIFO<T, MAXSIZE>::write(T data) {
         }
     }
 
-    albertOS::signalSemaphore(currentSize); // Increase the size! Also unblocks threads that were waiting for an element.
+    signalSemaphore(currentSize); // Increase the size! Also unblocks threads that were waiting for an element.
 
-    albertOS::signalSemaphore(mutex);
+    signalSemaphore(mutex);
     return true;
 }
 
@@ -105,4 +104,4 @@ int initFIFO(uint32_t FIFOIndex);
 int32_t readFIFO(unsigned FIFOIndex);
 int writeFIFO(unsigned FIFOIndex, int32_t data);
 
-} // end of namespace albertOS
+} // end of namespace albeRTOS

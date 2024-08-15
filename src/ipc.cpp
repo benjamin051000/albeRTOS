@@ -1,7 +1,4 @@
-/*
- * IPC.cpp
- */
-#include <albertOS.h>
+#include <ipc.h>
 
 // Private namespace
 namespace {
@@ -13,7 +10,7 @@ struct FIFO_old {
     int32_t buffer[FIFOSIZE]; // Data buffer
     int32_t *head, *tail;
     int32_t lostData; // Counts amount of lost data
-    Semaphore currentSize, mutex;
+	albeRTOS::Semaphore currentSize, mutex;
 };
 
 /* Array of FIFOS */
@@ -25,7 +22,7 @@ FIFO_old FIFOs[MAX_NUMBER_OF_FIFOS];
 /*
  * Initializes FIFO Struct
  */
-int albertOS::initFIFO(unsigned FIFOIndex)
+int albeRTOS::initFIFO(unsigned FIFOIndex)
 {
     if(FIFOIndex >= MAX_NUMBER_OF_FIFOS) {
         return -1; // TODO return error codes
@@ -36,8 +33,8 @@ int albertOS::initFIFO(unsigned FIFOIndex)
     newFIFO.head = &newFIFO.buffer[0];
     newFIFO.tail = &newFIFO.buffer[0];
     newFIFO.lostData = 0;
-    albertOS::initSemaphore(newFIFO.currentSize, 0);
-    albertOS::initSemaphore(newFIFO.mutex, 1);
+    albeRTOS::initSemaphore(newFIFO.currentSize, 0);
+    albeRTOS::initSemaphore(newFIFO.mutex, 1);
 
     return 0;
 }
@@ -49,13 +46,13 @@ int albertOS::initFIFO(unsigned FIFOIndex)
  * Param: "FIFOChoice": chooses which buffer we want to read from
  * Returns: uint32_t Data from FIFO
  */
-int32_t albertOS::readFIFO(unsigned FIFOIndex) {
+int32_t albeRTOS::readFIFO(unsigned FIFOIndex) {
     // Obtain ref to FIFO struct
     FIFO_old& fifo = FIFOs[FIFOIndex];
 
     int32_t data = 0;
-    albertOS::waitSemaphore(fifo.mutex); //in case something else is reading
-    albertOS::waitSemaphore(fifo.currentSize); //block if its empty
+    albeRTOS::waitSemaphore(fifo.mutex); //in case something else is reading
+    albeRTOS::waitSemaphore(fifo.currentSize); //block if its empty
     data = *fifo.head;
 
     if(fifo.head == &fifo.buffer[FIFOSIZE-1]) {
@@ -65,7 +62,7 @@ int32_t albertOS::readFIFO(unsigned FIFOIndex) {
         fifo.head++;
     }
 
-    albertOS::signalSemaphore(fifo.mutex);
+    albeRTOS::signalSemaphore(fifo.mutex);
     return data;
 }
 
@@ -77,7 +74,7 @@ int32_t albertOS::readFIFO(unsigned FIFOIndex) {
  *        "Data': Data being put into FIFO
  *  Returns: error code for full buffer if unable to write
  */
-int albertOS::writeFIFO(unsigned FIFOIndex, int32_t data) {
+int albeRTOS::writeFIFO(unsigned FIFOIndex, int32_t data) {
     //G8RTOS_WaitSemaphore(&FIFOs[FIFOChoice].mutex);
 
     // Obtain ref to FIFO struct
@@ -85,7 +82,7 @@ int albertOS::writeFIFO(unsigned FIFOIndex, int32_t data) {
 
     if(fifo.currentSize == FIFOSIZE) { // Out of room
         fifo.lostData++;
-        albertOS::signalSemaphore(fifo.mutex);
+        albeRTOS::signalSemaphore(fifo.mutex);
         return -1;
     }
     else {
@@ -100,7 +97,7 @@ int albertOS::writeFIFO(unsigned FIFOIndex, int32_t data) {
         }
     }
 
-    albertOS::signalSemaphore(fifo.currentSize);
+    albeRTOS::signalSemaphore(fifo.currentSize);
    // G8RTOS_SignalSemaphore(&FIFOs[FIFOChoice].mutex);
     return 0;
 }

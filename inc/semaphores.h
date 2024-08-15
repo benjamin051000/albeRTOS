@@ -3,7 +3,7 @@
 #include <cstdint>
 
 
-namespace albertOS {
+namespace albeRTOS {
 
 using Semaphore = std::int32_t;
 

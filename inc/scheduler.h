@@ -30,7 +30,7 @@ extern uint32_t systemTime;
 /**
  * API namespace
  */
-namespace albertOS {
+namespace albeRTOS {
 /*
  * Initializes variables and hardware for G8RTOS usage
  */

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include "ipc.h"
 #include "semaphores.h"
 #include "scheduler.h"
 
@@ -14,14 +13,14 @@
  *      and Blocked Status
  */
 struct TCB {
-   int32_t* sp;
+   intptr_t* sp;
    TCB *prev, *next;
-	albertOS::Semaphore* blocked; // 0 if not blocked, otherwise holds semaphore of resource its waiting for
+	albeRTOS::Semaphore* blocked; // 0 if not blocked, otherwise holds semaphore of resource its waiting for
    uint32_t sleepCount; // how long left to sleep
    bool asleep;
    uint8_t priority;
    bool isAlive;
-	threadID threadID;
+	threadID id;
    char name[MAX_NAME_LEN];
 };
 
