@@ -1,14 +1,30 @@
 # albeRTOS
-### Embedded RTOS for TI MSP432 in C++
+A simple embedded [RTOS](https://en.wikipedia.org/wiki/Real-time_operating_system) for microcontrollers.
 
-Ported from the **G8RTOS**, a Real-Time Operaing System kernel in C created in Microprocessor Applications 2 🐊.
+# Features
+- Thread-based parallelism
+- Fixed-priority pre-emptive scheduler (TODO correct? see wikipedia page)
+- Resource-sharing constructs
+- Periodic events
+- Aperiodic events 
 
-## Why port to C++?
-Many reasons!
-- Namespaces: Access control is beautiful now.
-- Object-Oriented Programming (WIP): GREATLY simplified/supercharged data structures.
-- References (instead of pointers): Safe memory operations.
-- STL (WIP)
-- Much more...
+---
 
-See [main.cpp](https://github.com/benjamin051000/albertOS/blob/main/main.cpp) for an example of how to interface with the RTOS.
+# Usage
+## Setup
+- TODO QEMU
+- TODO arduino
+
+## Building 
+- TODO
+
+## Run an example
+- TODO 
+
+---
+
+# Testing
+- TODO write some tests
+
+---
+This project is originally from my implementation of the **G8RTOS**, an RTOS kernel in C created in Microprocessor Applications 2 at the University of Florida. 🐊
