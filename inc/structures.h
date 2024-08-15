@@ -3,7 +3,9 @@
  */
 #pragma once
 
-#include <albertOS.h>
+
+#include <cstdint>
+#include "ipc.h"
 
 // TODO this file should not be exposed on the public API. It's for internal kernel use only.
 

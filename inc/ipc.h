@@ -3,7 +3,8 @@
  */
 #pragma once
 
-#include <albertOS.h>
+#include "structures.h"
+#include "semaphore.h"
 
 namespace albertOS {
 

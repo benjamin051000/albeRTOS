@@ -1,11 +1,12 @@
-/*
- * G8RTOS_Semaphores.h
- */
 #pragma once
 
-using Semaphore = int32_t;
+#include <cstdint>
+
 
 namespace albertOS {
+
+using Semaphore = std::int32_t;
+
 /*
  * Initializes a semaphore to a given value
  * Param "s": Pointer to semaphore
