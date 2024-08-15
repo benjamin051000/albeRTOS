@@ -18,8 +18,6 @@ void count_ms() {
 	}
 }
 
-void idle() { while(true); }
-
 int main() {
 
 	albeRTOS::init();
