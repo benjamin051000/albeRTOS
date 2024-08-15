@@ -1,9 +1,6 @@
-/*
- * G8RTOS_Scheduler.h
- */
 #pragma once
 
-#include <albertOS.h>
+#include <cstdint>
 
 using threadID = uint32_t;
 using TaskFuncPtr = void(*)(); // Function pointer alias
@@ -87,6 +84,7 @@ sched_ErrCode killSelf();
 sched_ErrCode killAll();
 
 //adds an aperiodic event, like an interrupt
+using IRQn_Type = int32_t; // TODO this is likely a BUG
 sched_ErrCode addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t priority, IRQn_Type IRQn);
 
 } // end of namespace albertOS

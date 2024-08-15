@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <albertOS.h>
+#include <cstdint>
 
 #define START_CRIT_SECTION const int32_t criticalSectionStatus = StartCriticalSection();
 #define END_CRIT_SECTION EndCriticalSection(criticalSectionStatus);

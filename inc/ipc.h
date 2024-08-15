@@ -1,10 +1,7 @@
-/*
- * IPC.h
- */
 #pragma once
 
 #include "structures.h"
-#include "semaphore.h"
+#include "semaphores.h"
 
 namespace albertOS {
 
@@ -13,7 +10,7 @@ class FIFO {
     T buffer[MAXSIZE]; // Data buffer // TODO replace with std::array for nicer api
     T *head, *tail;
     unsigned lostData; // Counts amount of lost data
-    Semaphore currentSize, mutex;
+	Semaphore currentSize, mutex;
 public:
     // Constructor
     FIFO();

@@ -1,11 +1,9 @@
-/*
- * Structures.h
- */
 #pragma once
-
 
 #include <cstdint>
 #include "ipc.h"
+#include "semaphores.h"
+#include "scheduler.h"
 
 // TODO this file should not be exposed on the public API. It's for internal kernel use only.
 
@@ -18,12 +16,12 @@
 struct TCB {
    int32_t* sp;
    TCB *prev, *next;
-   Semaphore* blocked; // 0 if not blocked, otherwise holds semaphore of resource its waiting for
+	albertOS::Semaphore* blocked; // 0 if not blocked, otherwise holds semaphore of resource its waiting for
    uint32_t sleepCount; // how long left to sleep
    bool asleep;
    uint8_t priority;
    bool isAlive;
-   threadID threadID;
+	threadID threadID;
    char name[MAX_NAME_LEN];
 };
 
