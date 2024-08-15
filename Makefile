@@ -1,12 +1,12 @@
-CFLAGS = -D TODOREMOVE
-CFLAGS += -Wall -Wextra
-CFLAGS += -I inc/
+CXXFLAGS = -D TODOREMOVE
+CXXFLAGS += -Wall -Wextra
+CXXFLAGS += -I inc/
 
 SRC = $(wildcard src/*)
 
 .PHONY: all
 all:
-	 $(CC) $(CFLAGS) examples/basic.cpp $(SRC)
+	 $(CXX) $(CXXFLAGS) examples/basic.cpp $(SRC)
 
 .PHONY: clean
 clean:

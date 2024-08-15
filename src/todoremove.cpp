@@ -1,14 +1,15 @@
 /**
- * This shoudn't exist. It's just to allow the thing to build.
+ * WARNING This shoudn't exist. It's just to allow the thing to build.
  * These functions should be defined, one set per architecture.
  */
 
 #ifdef TODOREMOVE
 #warning "Using dummy functions for critical sections... the code WILL break!"
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 
+extern "C" {
 [[noreturn]] void start_RTOS(void) { while(true); }
 
 /*
@@ -25,4 +26,6 @@ int32_t StartCriticalSection() { return -1;}
  * Param "IBit_State": PRIMASK State to update
  */
 void EndCriticalSection(int32_t IBit_State) { (void)IBit_State; }
+
+}
 #endif

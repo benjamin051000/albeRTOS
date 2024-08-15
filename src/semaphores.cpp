@@ -6,25 +6,22 @@
 namespace albeRTOS {
 
 Semaphore::Semaphore(const int32_t value) {
-	START_CRIT_SECTION;
+	ScopedCriticalSection _crit;
 	// TODO check that value is >= 0 ?
 	this->value = value;
-	END_CRIT_SECTION;
 }
 
 void Semaphore::wait() {
-	START_CRIT_SECTION;
+	ScopedCriticalSection _crit;
 
 	value -= 1; // declare ownership
 
 	// If s < 0, it's currently claimed by another thread.
 	if(value < 0) {
 		currentThread->blocked = this; // block this thread
-		END_CRIT_SECTION;
 		contextSwitch(); // do something else until this thread is unblocked (other thread releases the Semaphore)
 	}
 
-	END_CRIT_SECTION;
 }
 
 /*
@@ -35,7 +32,7 @@ void Semaphore::wait() {
  * THIS IS A CRITICAL SECTION
  */
 void Semaphore::signal() {
-	START_CRIT_SECTION;
+	ScopedCriticalSection _crit;
 
 	value += 1;
 
@@ -60,7 +57,6 @@ void Semaphore::signal() {
 		//        // blocked_thread->blocked == &s, so blocked_thread is blocked by this semaphore!
 		//        blocked_thread->blocked = nullptr; //make it unblocked
 	}
-	END_CRIT_SECTION;
 }
 
 } // end of namespace albeRTOS

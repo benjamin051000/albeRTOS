@@ -160,10 +160,9 @@ void albeRTOS::init() {
  * Returns: Error code for adding threads
  */
 sched_ErrCode albeRTOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel, char name[MAX_NAME_LEN]) {
-    START_CRIT_SECTION;
+	ScopedCriticalSection _crit;
 
     if(numThreads >= MAX_THREADS) {
-        END_CRIT_SECTION;
         return THREAD_LIMIT_REACHED;
     }
 
@@ -179,7 +178,6 @@ sched_ErrCode albeRTOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
     // No threads are dead.
     // TODO this doesn't seem right. What if one of the threads is simply uninitialized? Maybe they all default to dead.
     if(tcbToInitialize == -1) {
-        END_CRIT_SECTION;
         return THREADS_INCORRECTLY_ALIVE;
     }
 
@@ -224,7 +222,6 @@ sched_ErrCode albeRTOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
 
 	numThreads++;
 
-	END_CRIT_SECTION;
 
 	return NO_ERROR;
 }
@@ -238,10 +235,9 @@ sched_ErrCode albeRTOS::addThread(TaskFuncPtr threadToAdd, uint8_t priorityLevel
  * Returns: Error code for adding threads
  */
 sched_ErrCode albeRTOS::addPeriodicEvent(TaskFuncPtr pThreadToAdd, uint32_t period) {
-    START_CRIT_SECTION;
+    ScopedCriticalSection _crit; // TODO can this have a narrower scope?
 
     if(numPThreads >= MAX_PTHREADS) {
-        END_CRIT_SECTION;
         return THREAD_LIMIT_REACHED;
     }
 
@@ -266,7 +262,6 @@ sched_ErrCode albeRTOS::addPeriodicEvent(TaskFuncPtr pThreadToAdd, uint32_t peri
 
     numPThreads++;
 
-    END_CRIT_SECTION;
     return NO_ERROR;
 }
 
@@ -287,10 +282,9 @@ inline threadID albeRTOS::getThreadID() {
 }
 
 sched_ErrCode albeRTOS::killThread(threadID threadID) {
-    START_CRIT_SECTION;
+    ScopedCriticalSection _crit;
 
     if(numThreads == 1) {
-        END_CRIT_SECTION;
         return CANNOT_KILL_LAST_THREAD;
     }
 
@@ -304,7 +298,6 @@ sched_ErrCode albeRTOS::killThread(threadID threadID) {
     }
     // If we didn't find the thread, this ID is invalid (or the thread has mysteriously disappeared...)
     if(threadToKill == -1) {
-        END_CRIT_SECTION;
         return THREAD_DOES_NOT_EXIST;
     }
 
@@ -312,11 +305,10 @@ sched_ErrCode albeRTOS::killThread(threadID threadID) {
     threadControlBlocks[threadToKill].next->prev = threadControlBlocks[threadToKill].prev;
     threadControlBlocks[threadToKill].prev->next = threadControlBlocks[threadToKill].next; // Update pointers
 
-    contextSwitch();
+    contextSwitch(); 
 
-    numThreads--;
+    numThreads--; // TODO unreachable?
 
-    END_CRIT_SECTION;
     return NO_ERROR;
 }
 
@@ -346,18 +338,16 @@ sched_ErrCode albeRTOS::killSelf() {
 
 // Adds an aperiodic event, like an interrupt
 sched_ErrCode albeRTOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t priority, IRQn_Type IRQn) {
-    START_CRIT_SECTION;
+	ScopedCriticalSection _crit;
 
 	// TODO BUG horribly broken. this is currently architecture-specific.
 	if(true) {
     // if(IRQn < PSS_IRQn || IRQn > PORT6_IRQn) {
 		(void)IRQn;
-        END_CRIT_SECTION;
         return IRQn_INVALID;
     }
 
     if(priority > 6) {
-        END_CRIT_SECTION;
         return HWI_PRIORITY_INVALID;
     }
 
@@ -368,7 +358,6 @@ sched_ErrCode albeRTOS::addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t prio
     // NVIC_SetPriority(IRQn, priority);
     // NVIC_EnableIRQ(IRQn);
 
-    END_CRIT_SECTION;
     return NO_ERROR;
 }
 
