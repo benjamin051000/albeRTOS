@@ -70,7 +70,7 @@ sched_ErrCode addPeriodicEvent(TaskFuncPtr PthreadToAdd, uint32_t period);
  * Puts the current thread into a sleep state.
  *  param durationMS: Duration of sleep time in ms
  */
-void sleep(uint32_t durationMS);
+[[noreturn]] void sleep(uint32_t durationMS);
 
 //returns the currently running thread's ID
 threadID getThreadID();
@@ -86,5 +86,7 @@ sched_ErrCode killAll();
 //adds an aperiodic event, like an interrupt
 using IRQn_Type = int32_t; // TODO this is likely a BUG
 sched_ErrCode addAPeriodicEvent(TaskFuncPtr AthreadToAdd, uint8_t priority, IRQn_Type IRQn);
+
+[[noreturn]] void contextSwitch();
 
 } // end of namespace albertOS

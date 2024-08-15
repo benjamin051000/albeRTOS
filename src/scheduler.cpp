@@ -16,9 +16,10 @@ uint32_t systemTime;
 TCB* currentThread;
 
 /* Manually sets the PendSV interrupt flag to trigger a context switch. */
-void contextSwitch() {
+[[noreturn]] void albeRTOS::contextSwitch() {
 	// TODO this is architecture-specific!
     // SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+	while(true); // TODO BUG BAD! architecture-specific!
 }
 
 /* Private namespace */
@@ -79,7 +80,7 @@ extern "C" void G8RTOS_Scheduler() {
  * the scheduler, and handles sleeping and periodic threads.
  */
 // TODO: This must be 'extern "C"' for some reason... figure out why.
-extern "C" void SysTick_Handler() {
+extern "C" [[noreturn]] void SysTick_Handler() {
 	systemTime++;
 
 	for(unsigned j = 0; j < numPThreads; j++) {
@@ -96,7 +97,7 @@ extern "C" void SysTick_Handler() {
 	    }
 	}
 
-	contextSwitch();
+	albeRTOS::contextSwitch();
 }
 
 
@@ -274,7 +275,7 @@ sched_ErrCode albeRTOS::addPeriodicEvent(TaskFuncPtr pThreadToAdd, uint32_t peri
  * Puts the current thread into a sleep state.
  *  param durationMS: Duration of sleep time in ms
  */
-void albeRTOS::sleep(uint32_t durationMS) {
+[[noreturn]] void albeRTOS::sleep(uint32_t durationMS) {
     currentThread->sleepCount = durationMS + systemTime;
     currentThread->asleep = true;
     contextSwitch(); //yield to allow other threads to run
