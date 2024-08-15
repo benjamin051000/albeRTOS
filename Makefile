@@ -1,6 +1,7 @@
 CXXFLAGS = -D TODOREMOVE
-CXXFLAGS += -Wall -Wextra
+CXXFLAGS += -Wall -Wextra -Wunused -Wshadow=compatible-local -Wpedantic -Wconversion
 CXXFLAGS += -I inc/
+CXXFLAGS += --std=c++20
 
 SRC = $(wildcard src/*)
 
