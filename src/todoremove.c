@@ -1,4 +1,11 @@
+/**
+ * This shoudn't exist. It's just to allow the thing to build.
+ * These functions should be defined, one set per architecture.
+ */
+
 #ifdef TODOREMOVE
+#warning "Using dummy functions for critical sections... the code WILL break!"
+
 #include <stdint.h>
 #include <stdbool.h>
 
