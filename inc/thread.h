@@ -1,7 +1,17 @@
 #pragma once
 #include <cstdint>
-#include <functional>
 #include "semaphores.h"
+
+enum sched_ErrCode {
+    NO_ERROR                  = 0,
+    THREAD_LIMIT_REACHED      = -1,
+    NO_THREADS_SCHEDULED      = -2,
+    THREADS_INCORRECTLY_ALIVE = -3,
+    THREAD_DOES_NOT_EXIST     = -4,
+    CANNOT_KILL_LAST_THREAD   = -5,
+    IRQn_INVALID              = -6,
+    HWI_PRIORITY_INVALID      = -7
+};
 
 
 namespace albeRTOS {
@@ -26,6 +36,7 @@ public:
 	Thread(const TaskPtr t, const uint8_t priority, const char name[MAX_THREAD_NAME_LEN]);
 
 	constexpr bool is_asleep() const;
+	void kill();
 };
 
 } // end of namespace albeRTOS

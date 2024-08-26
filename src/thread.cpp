@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <cstring>
 #include <thread.h>
+#include <criticalsection.h>
 
 namespace albeRTOS {
 
@@ -11,6 +12,11 @@ Thread::Thread(const TaskPtr t, const uint8_t priority, const char name[MAX_THRE
 
 constexpr bool Thread::is_asleep() const {
 	return asleep_for > 0;
+}
+
+void Thread::kill() {
+	ScopedCriticalSection _crit;
+	alive = false;
 }
 
 } // namespace albeRTOS

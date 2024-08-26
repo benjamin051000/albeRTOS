@@ -1,5 +1,6 @@
 #pragma once
 
+#include "thread.h"
 #include <cstdint>
 
 using threadID = uint32_t;
@@ -13,17 +14,6 @@ const unsigned OSINT_PRIORITY = 7;
 const unsigned MAX_NAME_LEN = 16;
 
 
-enum sched_ErrCode {
-    NO_ERROR                  = 0,
-    THREAD_LIMIT_REACHED      = -1,
-    NO_THREADS_SCHEDULED      = -2,
-    THREADS_INCORRECTLY_ALIVE = -3,
-    THREAD_DOES_NOT_EXIST     = -4,
-    CANNOT_KILL_LAST_THREAD   = -5,
-    IRQn_INVALID              = -6,
-    HWI_PRIORITY_INVALID      = -7
-};
-
 /* Holds the current time for the whole System */
 extern uint32_t systemTime;
 
@@ -31,6 +21,21 @@ extern uint32_t systemTime;
  * API namespace
  */
 namespace albeRTOS {
+
+constexpr auto MAX_NUM_THREADS = 32;
+
+class Scheduler {
+	Thread threads[MAX_NUM_THREADS];
+	Thread *current_thread;
+public:
+	Scheduler();
+	~Scheduler() = delete;
+	// TODO rule of 3? This should really be a singleton
+
+	[[noreturn]] sched_ErrCode launch() const;
+	sched_ErrCode add_thread(Thread t); // TODO rvalue?
+};
+
 /*
  * Initializes variables and hardware for G8RTOS usage
  */
