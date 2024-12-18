@@ -29,4 +29,6 @@ RUN mkdir ~/gcc && cd ~/gcc && \
 	make install-gcc && make install-target-libgcc && \
 	cd ~ && rm -r ~/gcc
 
+RUN apt-get install grub-common xorriso -y
+
 ENV PATH="$PATH:/opt/cross/bin"
