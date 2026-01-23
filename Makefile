@@ -25,3 +25,7 @@ vga.o: drivers/vga/vga.cpp
 .PHONY: clean
 clean:
 	rm *.o os.bin
+
+.PHONY: run
+run: os.bin
+	qemu-system-i386 -kernel os.bin
