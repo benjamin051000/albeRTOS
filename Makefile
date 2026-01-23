@@ -24,4 +24,4 @@ vga.o: drivers/vga/vga.cpp
 
 .PHONY: clean
 clean:
-	rm a.out
+	rm *.o os.bin
