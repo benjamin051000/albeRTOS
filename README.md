@@ -1,22 +1,29 @@
 # albeRTOS
-A simple embedded [RTOS](https://en.wikipedia.org/wiki/Real-time_operating_system) for microcontrollers.
+A simple [Real-time operating system](https://en.wikipedia.org/wiki/Real-time_operating_system) for i686 (32-bit x86).
 
 # Features
 - Thread-based parallelism
-- Fixed-priority pre-emptive scheduler (TODO correct? see wikipedia page)
-- Resource-sharing constructs
-- Periodic events
-- Aperiodic events 
+- Round-robin real-time scheduler
+- Resource-sharing constructs (FIFO, Semaphore)
+- Periodic events (timeout-driven)
+- Aperiodic events (interrupt-driven)
 
 ---
 
 # Usage
+
+Use docker or podman for building the kernel.
+Use qemu to run the operating system.
+
 ## Setup
-- TODO QEMU
-- TODO arduino
+- Install docker or podman.
+- Install qemu
+
+- Run `docker build -t albertos .` to build the docker image used to compile the kernel.
 
 ## Building 
-- TODO
+- Build the kernel with `docker run -v .:/albeRTOS make -j$(nproc)`
+- On Fedora, you may need to mount via `-v .:/albeRTOS:Z` for... SELinux reasons.
 
 ## Run an example
 - TODO 
