@@ -1,11 +1,13 @@
 FROM ubuntu:24.04
 
 ENV PREFIX="/opt/cross" \
-	PATH="$PREFIX/bin:$PATH" \
 	TARGET="i686-elf" \
 	DEBIAN_FRONTEND="noninteractive" \
 	BINUTILS_VERSION="2.45.1" \
 	GCC_VERSION="15.2.0"
+
+# This only works if it's done after PREFIX.
+ENV PATH="$PREFIX/bin:$PATH"
 
 # Install cross-compiler build dependencies
 RUN apt-get update && \ 
